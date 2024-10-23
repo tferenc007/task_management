@@ -1,0 +1,17 @@
+story_id,id,name,description,is_completed,complitation_date,is_cancelled
+1,1,One ride 1,na,false,null,null
+1,2,One ride 2,na,false,null,null
+1,3,One ride 3,na,false,null,null
+1,4,One ride 4,na,false,null,null
+1,5,One ride 5,na,false,null,null
+2,6,One workout,na,false,null,null
+2,7,One workout,na,false,null,null
+2,8,One workout,na,false,null,null
+3,9,Create draft view tab,na,false,null,null
+3,10,Create draft edit/add tab,na,false,null,null
+3,11,Create draft add activity tab,na,false,null,null
+3,12,Establish database connection,na,false,null,null
+4,13,Boardgame with wife,na,false,null,null
+4,14,Boardgame with Korki,na,false,null,null
+5,15,Meet with Korki,na,false,null,null
+5,16,Meet with Sebastian ,na,false,null,null
