@@ -1,10 +1,16 @@
 import pandas as pd
 import datetime
+import sqlite3 as sq
 
-epic_df = pd.read_csv("data/epics.csv")
-stories_df = pd.read_csv("data/stories.csv")
-tasks_df = pd.read_csv("data/tasks.csv")
 
+# epic_df = pd.read_csv("data/epics.csv")
+# stories_df = pd.read_csv("data/stories.csv")
+# tasks_df = pd.read_csv("data/tasks.csv")
+conn = sq.connect('data/database.db')
+epic_df = pd.read_sql_query("SELECT * FROM epics", conn)
+stories_df = pd.read_sql_query("SELECT * FROM stories", conn)
+tasks_df = pd.read_sql_query("SELECT * FROM tasks", conn)
+conn.close()
 class Epic:
     def __init__(self, df=None, epic_id = None):
         if epic_id == None:
@@ -119,8 +125,6 @@ class Story:
             my_task = Task(task_id=task)
             my_task.get_attr(df)
             self._tasks.append(my_task)
-            
-
 
 class Task:
     def __init__(self,task_id, task_name=None, task_desc=None):
@@ -200,9 +204,19 @@ class Task:
                 return True
 
 
-
-
 if __name__ =='__main__':
+    # !!!!! CREATE A INNITIAL DATABASE !!!!
+    # conn = sq.connect('data/database.db')
+    # epic_df.to_sql('epics', conn, if_exists='replace', index=False)
+    # stories_df.to_sql('stories', conn, if_exists='replace', index=False)
+    # tasks_df.to_sql('tasks', conn, if_exists='replace', index=False)
+    # conn.close()
+
+# epic_df = pd.read_csv("data/epics.csv")
+# stories_df = pd.read_csv("data/stories.csv")
+# tasks_df = pd.read_csv("data/tasks.csv")
+
+
 
     e_id = 1
     s_id = 1
