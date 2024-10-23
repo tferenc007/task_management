@@ -11,6 +11,36 @@ epic_df = pd.read_sql_query("SELECT * FROM epics", conn)
 stories_df = pd.read_sql_query("SELECT * FROM stories", conn)
 tasks_df = pd.read_sql_query("SELECT * FROM tasks", conn)
 conn.close()
+class TaskManagement:
+    def __init__(self):
+            epic_ids = epic_df["id"].tolist()
+            self._epics = []
+            for ei in epic_ids:
+                epic = Epic(epic_id=ei)
+                epic.get_attr(epic_df)
+                epic.get_all_stories(story_df=stories_df, task_df=tasks_df)
+                self._epics.append(epic)
+    @property
+    def epics(self):
+        return self._epics
+    
+    def add_task(self, task, epic_id, story_id):
+        # create a new taskś
+        pass
+
+    def add_story(self, story, epic_id):
+        # create a new story
+        pass
+
+    def add_epic(self, epic):
+        # create a new epic
+        pass
+
+    def save(self):
+        #save object to database
+        pass
+
+
 class Epic:
     def __init__(self, df=None, epic_id = None):
         if epic_id == None:
@@ -225,9 +255,13 @@ if __name__ =='__main__':
     epic = Epic(epic_id=e_id)
     epic.get_attr(epic_df)
     epic.get_all_stories(story_df=stories_df, task_df=tasks_df)
-    print(f"epic: {epic.name}")
-    print(f"story: {epic.stories[s_id-1].name}")
-    print(f"task: {epic.stories[s_id-1].tasks[t_id-1].name}")
+
+    tm = TaskManagement()
+
+     
+    print(f"epic: {tm.epics[0].name}")
+    print(f"story: {tm.epics[0].stories[s_id-1].name}")
+    print(f"task: {tm.epics[0].stories[s_id-1].tasks[t_id-1].name}")
 
 
 
