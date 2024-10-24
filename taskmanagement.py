@@ -37,8 +37,35 @@ class TaskManagement:
         pass
 
     def save(self):
+
+        epic_dic = []
+        story_dic = []
+        task_dic = []
+        epics = self._epics
+        for epic in epics:
+            dic = {'id': epic.id, 'name': epic.name}
+            epic_dic.append(dic)
+            for story in epic.stories:
+                s_dic = {'epic_id': story.epic_id, 'id': story.id, 'name': story.name, 'description': story.description,
+                        'est_start_date': story.est_start_date, 'est_end_date': story.est_end_date}
+                story_dic.append(s_dic)
+                for task in story.tasks:
+                    t_dic = {'story_id' : task.story_id, 'id': task.id, 'name': task.name,
+                             'description': task.description, 'is_completed': task.is_completed,
+                             'complitation_date': task.complitation_date, 'is_cancelled': task.is_cancelled}
+                    task_dic.append(t_dic)
+
+        e_df = pd.DataFrame(epic_dic)
+        s_df = pd.DataFrame(story_dic)
+        t_df = pd.DataFrame(task_dic)
+
         #save object to database
-        pass
+        conn = sq.connect('data/database.db')
+        e_df.to_sql('epics', conn, if_exists='replace', index=False)
+        s_df.to_sql('stories', conn, if_exists='replace', index=False)
+        t_df.to_sql('tasks', conn, if_exists='replace', index=False)
+        conn.close()
+
 
 
 class Epic:
@@ -258,10 +285,13 @@ if __name__ =='__main__':
 
     tm = TaskManagement()
 
-     
-    print(f"epic: {tm.epics[0].name}")
-    print(f"story: {tm.epics[0].stories[s_id-1].name}")
-    print(f"task: {tm.epics[0].stories[s_id-1].tasks[t_id-1].name}")
+    print(tm.epics[0].stories[0].tasks[0].name)
+    tm.epics[0].stories[0].tasks[0].name = 'One ride 1'
+    print(tm.epics[0].stories[0].tasks[0].name)
+    # tm.save()
+    # print(f"epic: {tm.epics[0].name}")
+    # print(f"story: {tm.epics[0].stories[s_id-1].name}")
+    # print(f"task: {tm.epics[0].stories[s_id-1].tasks[t_id-1].name}")
 
 
 
