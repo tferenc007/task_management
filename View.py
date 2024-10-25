@@ -10,7 +10,6 @@ current_sprint_start= datetime.date(2024, 10, 21)
 start_date = current_sprint_start
 current_sprint_end= datetime.date(2024, 11, 3)
 end_date = current_sprint_end
-last_activity = taskm.last_activity()
 
 st.markdown("<h1 style='text-align: center;'>View</h1>", unsafe_allow_html=True)
 st.selectbox("Select View",("Current"))
@@ -18,6 +17,8 @@ with st.sidebar:
     with st.container(border=True):
         start_date = st.date_input("Start Date", current_sprint_start)
         end_date = st.date_input("End Date", current_sprint_end)
+
+last_activity = taskm.last_activity(start_date, end_date)
 with st.container(border=True):
     con_col1, con_col2 = st.columns(2)
     con_col1.write("Last Activity")

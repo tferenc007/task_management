@@ -32,21 +32,24 @@ class TaskManagement:
     def epics(self):
         return self._epics
     
-    def last_activity(self, date_from=None, date_to=None):
+    def last_activity(self, start_date, end_date):
         first_iteration = True
         l_activity = None
         for epic in self.epics:
             for stories in epic.stories:
                 for task in stories.tasks:
                     if task.is_completed=='true':
-                        if first_iteration:
-                            first_iteration = False
-                            l_activity = datetime.strptime(task.complitation_date, "%Y-%m-%d")
-                        else:
-                            t_date = datetime.strptime(task.complitation_date, "%Y-%m-%d")
-                            if t_date>l_activity:
-                                l_activity = t_date
-        return datetime.date(l_activity)
+                        task_complitation_date = datetime.strptime(task.complitation_date, "%Y-%m-%d")
+                        task_complitation_date = task_complitation_date.date() 
+                        if start_date <= task_complitation_date <= end_date:
+                            if first_iteration:
+                                first_iteration = False
+                                l_activity = task_complitation_date
+                            else:
+                                t_date = task_complitation_date
+                                if t_date>l_activity:
+                                    l_activity = t_date
+        return l_activity
 
 
                     
@@ -308,17 +311,17 @@ if __name__ =='__main__':
     for epic in tm.epics:
         for story in epic.stories:
             for task in story.tasks:
-                print(f'task id: {task.id} - story.id: {task.story_id}')
+                print(f'task id: {task.id} - story.id: {task.story_id} epic {epic.id}')
 
     # print(tm.epics[0].stories[0].tasks[0].complitation_date)
-    # tm.epics[0].stories[1].tasks[0].complitation_date = '2024-10-25'
-    # tm.epics[0].stories[1].tasks[1].complitation_date = '2024-10-24'
-    # tm.epics[0].stories[1].tasks[3].complitation_date = '2024-10-20'
-    # tm.epics[0].stories[1].tasks[4].complitation_date = '2024-10-21'
-    # tm.epics[0].stories[1].tasks[5].complitation_date = '2024-10-19'
+    tm.epics[0].stories[0].tasks[0].complitation_date = '2024-10-25'
+    tm.epics[0].stories[0].tasks[1].complitation_date = '2024-10-24'
+    tm.epics[0].stories[0].tasks[3].complitation_date = '2024-10-20'
+    tm.epics[0].stories[0].tasks[4].complitation_date = '2024-10-21'
 
-    # print(tm.epics[0].stories[0].tasks[0].complitation_date)
-    # tm.save()
+
+    # # print(tm.epics[0].stories[0].tasks[0].complitation_date)
+    tm.save()
     # print(f"epic: {tm.epics[0].name}")
     # print(f"story: {tm.epics[0].stories[s_id-1].name}")
     # print(f"task: {tm.epics[0].stories[s_id-1].tasks[t_id-1].name}")
