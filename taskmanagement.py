@@ -1,15 +1,23 @@
 import pandas as pd
-import datetime
+from datetime import datetime
 import sqlite3 as sq
 
 
 # epic_df = pd.read_csv("data/epics.csv")
 # stories_df = pd.read_csv("data/stories.csv")
 # tasks_df = pd.read_csv("data/tasks.csv")
+
+
+# conn = sq.connect('data/database.db')
+# epic_df.to_sql('epics', conn, if_exists='replace', index=False)
+# stories_df.to_sql('stories', conn, if_exists='replace', index=False)
+# tasks_df.to_sql('tasks', conn, if_exists='replace', index=False)
+# conn.close()
+
 conn = sq.connect('data/database.db')
-epic_df = pd.read_sql_query("SELECT * FROM epics", conn)
-stories_df = pd.read_sql_query("SELECT * FROM stories", conn)
-tasks_df = pd.read_sql_query("SELECT * FROM tasks", conn)
+epic_df = pd.read_sql_query("SELECT * FROM epics", conn, dtype=str)
+stories_df = pd.read_sql_query("SELECT * FROM stories", conn, dtype=str)
+tasks_df = pd.read_sql_query("SELECT * FROM tasks", conn, dtype=str)
 conn.close()
 class TaskManagement:
     def __init__(self):
@@ -24,6 +32,25 @@ class TaskManagement:
     def epics(self):
         return self._epics
     
+    def last_activity(self, date_from=None, date_to=None):
+        first_iteration = True
+        l_activity = None
+        for epic in self.epics:
+            for stories in epic.stories:
+                for task in stories.tasks:
+                    if task.is_completed=='true':
+                        if first_iteration:
+                            first_iteration = False
+                            l_activity = datetime.strptime(task.complitation_date, "%Y-%m-%d")
+                        else:
+                            t_date = datetime.strptime(task.complitation_date, "%Y-%m-%d")
+                            if t_date>l_activity:
+                                l_activity = t_date
+        return datetime.date(l_activity)
+
+
+                    
+        pass
     def add_task(self, task, epic_id, story_id):
         # create a new taskś
         pass
@@ -93,6 +120,7 @@ class Epic:
         for story_id in story_ids:
             my_story = Story(story_id=story_id)
             my_story.get_attr(story_df)
+            
             my_story.get_all_tasks(task_df)
             self._stories.append(my_story)
     
@@ -194,7 +222,7 @@ class Task:
         self._is_cancelled = False
     @property
     def story_id(self):
-        return self._id
+        return self._story_id
     
     @story_id.setter
     def story_id(self, value):
@@ -222,11 +250,6 @@ class Task:
     @property
     def is_completed(self):
         return self._is_completed
-    
-
-    @is_completed.setter
-    def is_completed(self, value):
-        self._is_completed = value
 
     @property   
     def complitation_date(self):
@@ -235,6 +258,7 @@ class Task:
     @complitation_date.setter   
     def complitation_date(self, value):
         self._complitation_date = value
+        self._is_completed = 'true'
 
     @property
     def is_cancelled(self):
@@ -244,9 +268,6 @@ class Task:
     def is_cancelled(self, value):
         self._is_cancelled = value
     
-    def save(self):
-        # save data to db
-        pass
     def get_attr(self, df):
             check = df.loc[df["id"] == self.id, "id"]
             if check.count()==0:
@@ -275,19 +296,28 @@ if __name__ =='__main__':
 
 
 
-    e_id = 1
-    s_id = 1
-    t_id = 1
 
-    epic = Epic(epic_id=e_id)
-    epic.get_attr(epic_df)
-    epic.get_all_stories(story_df=stories_df, task_df=tasks_df)
-
+    # print(tasks_df)
     tm = TaskManagement()
 
-    print(tm.epics[0].stories[0].tasks[0].name)
-    tm.epics[0].stories[0].tasks[0].name = 'One ride 1'
-    print(tm.epics[0].stories[0].tasks[0].name)
+  
+    # print (tm.last_activity())
+
+    # print(tasks_df)
+
+    for epic in tm.epics:
+        for story in epic.stories:
+            for task in story.tasks:
+                print(f'task id: {task.id} - story.id: {task.story_id}')
+
+    # print(tm.epics[0].stories[0].tasks[0].complitation_date)
+    # tm.epics[0].stories[1].tasks[0].complitation_date = '2024-10-25'
+    # tm.epics[0].stories[1].tasks[1].complitation_date = '2024-10-24'
+    # tm.epics[0].stories[1].tasks[3].complitation_date = '2024-10-20'
+    # tm.epics[0].stories[1].tasks[4].complitation_date = '2024-10-21'
+    # tm.epics[0].stories[1].tasks[5].complitation_date = '2024-10-19'
+
+    # print(tm.epics[0].stories[0].tasks[0].complitation_date)
     # tm.save()
     # print(f"epic: {tm.epics[0].name}")
     # print(f"story: {tm.epics[0].stories[s_id-1].name}")
