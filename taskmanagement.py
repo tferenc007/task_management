@@ -1,5 +1,5 @@
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, date
 import sqlite3 as sq
 
 
@@ -32,28 +32,68 @@ class TaskManagement:
     def epics(self):
         return self._epics
     
-    def last_activity(self, start_date, end_date):
-        first_iteration = True
-        l_activity = None
+    def tasks_squeeze(self, start_date=date(1900,1,1), end_date=date(2999,1,1), show_all=False):
+        squeezed_tasks =[]
         for epic in self.epics:
             for stories in epic.stories:
                 for task in stories.tasks:
+                    #filter sections
                     if task.is_completed=='true':
-                        task_complitation_date = datetime.strptime(task.complitation_date, "%Y-%m-%d")
-                        task_complitation_date = task_complitation_date.date() 
-                        if start_date <= task_complitation_date <= end_date:
-                            if first_iteration:
-                                first_iteration = False
-                                l_activity = task_complitation_date
-                            else:
-                                t_date = task_complitation_date
-                                if t_date>l_activity:
-                                    l_activity = t_date
+                        if start_date <= datetime.strptime(task.complitation_date, "%Y-%m-%d").date():
+                            if end_date >= datetime.strptime(task.complitation_date, "%Y-%m-%d").date():
+                                squeezed_tasks.append(task)
+                    elif show_all:
+                        squeezed_tasks.append(task)
+        return squeezed_tasks
+    
+    def stories_squeeze(self, est_start_date=date(1900,1,1), est_end_date=date(2999,1,1), is_completed=None):
+        squeezed_stories = []
+        for epic in self.epics:
+            for story in epic.stories:
+                story_est_start_date = datetime.strptime(story.est_start_date, "%Y-%m-%d").date()
+                story_est_end_date = datetime.strptime(story.est_end_date, "%Y-%m-%d").date()
+                if story_est_start_date>= est_start_date:
+                    if story_est_end_date<=est_end_date:
+                        if is_completed==None:
+                            squeezed_stories.append(story)
+                        if is_completed==True and story.is_completed==True:
+                            squeezed_stories.append(story)
+                        if is_completed==False and story.is_completed==False:
+                            squeezed_stories.append(story)
+        return squeezed_stories
+
+
+
+    def last_activity(self, start_date, end_date):
+        first_iteration = True
+        l_activity = None
+        tasks = self.tasks_squeeze(start_date=start_date, end_date=end_date)
+        for task in tasks:
+             comp_date = datetime.strptime(task.complitation_date, "%Y-%m-%d").date()
+             if start_date <= comp_date <= end_date:
+                if first_iteration:
+                    first_iteration = False
+                    l_activity = comp_date
+                else:
+                    t_date = comp_date
+                    if t_date>l_activity:
+                        l_activity = t_date
         return l_activity
+    
+
+    def story_count(self,  est_start_date=date(1900,1,1), est_end_date=date(2999,1,1), is_completed=None):
+        stories = self.stories_squeeze(est_start_date=est_start_date, est_end_date=est_end_date, is_completed=is_completed)
+        return len(stories)
+    
+
+    def task_count(self,  est_start_date=date(1900,1,1), est_end_date=date(2999,1,1), is_completed=None):
+        stories = self.stories_squeeze(est_start_date=est_start_date, est_end_date=est_end_date)
+        i = 0
+        for story in stories:
+            i = i + story.task_count(is_completed)
+        return i
 
 
-                    
-        pass
     def add_task(self, task, epic_id, story_id):
         # create a new taskś
         pass
@@ -81,7 +121,7 @@ class TaskManagement:
                 story_dic.append(s_dic)
                 for task in story.tasks:
                     t_dic = {'story_id' : task.story_id, 'id': task.id, 'name': task.name,
-                             'description': task.description, 'is_completed': task.is_completed,
+                             'description': task.description, 'is_completed': task._is_completed,
                              'complitation_date': task.complitation_date, 'is_cancelled': task.is_cancelled}
                     task_dic.append(t_dic)
 
@@ -142,6 +182,14 @@ class Story:
         self._description = None
         self._est_start_date = None
         self._est_end_date = None
+
+    @property
+    def is_completed(self):
+        is_compl = True
+        for task in self.tasks:
+            if task.is_completed=='false':
+                is_compl = False
+        return is_compl
     @property
     def tasks(self):
         return self._tasks
@@ -213,6 +261,17 @@ class Story:
             my_task = Task(task_id=task)
             my_task.get_attr(df)
             self._tasks.append(my_task)
+    
+    def task_count(self, is_completed=None):
+        i = 0
+        for task in self.tasks:
+            if task.is_completed=='true' and is_completed==True:
+                i = i + 1
+            elif is_completed==None:
+                i = i + 1
+            elif task.is_completed=='false' and is_completed==False:
+                i = i + 1            
+        return i
 
 class Task:
     def __init__(self,task_id, task_name=None, task_desc=None):
@@ -220,7 +279,7 @@ class Task:
         self._id = task_id
         self._name = task_name
         self._description = task_desc
-        self._is_completed = False
+        self._is_completed = None
         self._complitation_date = None
         self._is_cancelled = False
     @property
@@ -261,7 +320,10 @@ class Task:
     @complitation_date.setter   
     def complitation_date(self, value):
         self._complitation_date = value
-        self._is_completed = 'true'
+        if value !=None:
+            self._is_completed = 'true'
+        else:
+            self._is_completed = 'false'
 
     @property
     def is_cancelled(self):
@@ -282,7 +344,7 @@ class Task:
                 self._is_completed = df.loc[df["id"] == self.id, "is_completed"].squeeze()
                 self._is_cancelled = df.loc[df["id"] == self.id, "is_cancelled"].squeeze()
                 self._complitation_date = df.loc[df["id"] == self.id, "complitation_date"].squeeze()
-                return True
+
 
 
 if __name__ =='__main__':
@@ -303,25 +365,29 @@ if __name__ =='__main__':
     # print(tasks_df)
     tm = TaskManagement()
 
-  
-    # print (tm.last_activity())
+    # print(tm.story_count())
+    # for task in tm.tasks_squeeze(show_all=True):
+    #     print (task.name)
 
+    # print (tm.last_activity())
+    tm.save()
+    print (tasks_df)
     # print(tasks_df)
 
-    for epic in tm.epics:
-        for story in epic.stories:
-            for task in story.tasks:
-                print(f'task id: {task.id} - story.id: {task.story_id} epic {epic.id}')
+    # for epic in tm.epics:
+    #     for story in epic.stories:
+    #         for task in story.tasks:
+    #             print(f'task id: {task.id} - story.id: {task.story_id} epic {epic.id}')
 
     # print(tm.epics[0].stories[0].tasks[0].complitation_date)
-    tm.epics[0].stories[0].tasks[0].complitation_date = '2024-10-25'
-    tm.epics[0].stories[0].tasks[1].complitation_date = '2024-10-24'
-    tm.epics[0].stories[0].tasks[3].complitation_date = '2024-10-20'
-    tm.epics[0].stories[0].tasks[4].complitation_date = '2024-10-21'
+    # tm.epics[0].stories[0].tasks[0].complitation_date = '2024-10-25'
+    # tm.epics[0].stories[0].tasks[1].complitation_date = '2024-10-24'
+    # tm.epics[0].stories[0].tasks[3].complitation_date = '2024-10-20'
+    # tm.epics[0].stories[0].tasks[4].complitation_date = '2024-10-21'
 
 
     # # print(tm.epics[0].stories[0].tasks[0].complitation_date)
-    tm.save()
+
     # print(f"epic: {tm.epics[0].name}")
     # print(f"story: {tm.epics[0].stories[s_id-1].name}")
     # print(f"task: {tm.epics[0].stories[s_id-1].tasks[t_id-1].name}")
