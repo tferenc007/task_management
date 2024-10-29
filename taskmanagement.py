@@ -382,7 +382,7 @@ if __name__ =='__main__':
             for task in story.tasks:
                 task.complitation_date = None
 
-    # tm.save()
+    tm.save()
 
     # print(tm.story_count())
     # for task in tm.tasks_squeeze(show_all=True):
@@ -391,7 +391,7 @@ if __name__ =='__main__':
     # print (tm.last_activity())
 
 
-    print (tasks_df)
+
     # print(tasks_df)
 
     # for epic in tm.epics:
