@@ -18,14 +18,22 @@ class AddActivity():
         if 'first_run' not in st.session_state:
             st.session_state.first_run = False
 
-        
+        if 'epic_list' not in st.session_state:
+            st.session_state.epic_list = []
+
+        st.session_state.epic_list = [epic.id for epic in self.tasktm.epics]
         e_cols = st.columns(len(self.tasktm.epics))
-        for i, epic in enumerate(self.tasktm.epics):
-            if e_cols[i].button(epic.name,use_container_width=True, key=epic.id):
-                pass
         
 
-        for story_frame in self.tasktm.stories_squeeze():
+        if st.button('All Filters',use_container_width=True, key='all filters'):
+            st.session_state.epic_list = [epic.id for epic in self.tasktm.epics]
+        for i, epic in enumerate(self.tasktm.epics):
+            if e_cols[i].button(epic.name,use_container_width=True, key=epic.id):
+                st.session_state.epic_list = [e for e in st.session_state.epic_list if e == epic.id]
+        
+        stories = [story for story in self.tasktm.stories_squeeze(is_completed=False) if story.epic_id in st.session_state.epic_list]
+
+        for story_frame in stories:
             with st.expander(story_frame.name, expanded=True):
                     st.write(story_frame.description)
                     s_col1,empty_col, s_col2 = st.columns([1.5, 0.5, 1.5],)
