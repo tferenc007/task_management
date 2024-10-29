@@ -14,24 +14,36 @@ import sqlite3 as sq
 # tasks_df.to_sql('tasks', conn, if_exists='replace', index=False)
 # conn.close()
 
-conn = sq.connect('data/database.db')
-epic_df = pd.read_sql_query("SELECT * FROM epics", conn, dtype=str)
-stories_df = pd.read_sql_query("SELECT * FROM stories", conn, dtype=str)
-tasks_df = pd.read_sql_query("SELECT * FROM tasks", conn, dtype=str)
-conn.close()
 class TaskManagement:
+
     def __init__(self):
-            epic_ids = epic_df["id"].tolist()
-            self._epics = []
-            for ei in epic_ids:
-                epic = Epic(epic_id=ei)
-                epic.get_attr(epic_df)
-                epic.get_all_stories(story_df=stories_df, task_df=tasks_df)
-                self._epics.append(epic)
+        conn = sq.connect('data/database.db')
+        epic_df = pd.read_sql_query("SELECT * FROM epics", conn, dtype=str)
+        stories_df = pd.read_sql_query("SELECT * FROM stories", conn, dtype=str)
+        tasks_df = pd.read_sql_query("SELECT * FROM tasks", conn, dtype=str)
+        conn.close()
+        
+        epic_ids = epic_df["id"].tolist()
+        self._epics = []
+        for ei in epic_ids:
+            epic = Epic(epic_id=ei)
+            epic.get_attr(epic_df)
+            epic.get_all_stories(story_df=stories_df, task_df=tasks_df)
+            self._epics.append(epic)
+
+
     @property
     def epics(self):
         return self._epics
-    
+    def complete_task(self, task_completed, date):
+        for epic in self.epics:
+            for story in epic.stories:
+                for task in story.tasks:
+                    if task.id == task_completed.id:
+                        task.complitation_date = date
+                        self.save()
+
+
     def tasks_squeeze(self, start_date=date(1900,1,1), end_date=date(2999,1,1), show_all=False):
         squeezed_tasks =[]
         for epic in self.epics:
@@ -364,13 +376,21 @@ if __name__ =='__main__':
 
     # print(tasks_df)
     tm = TaskManagement()
+    
+    for epic in tm.epics:
+        for story in epic.stories:
+            for task in story.tasks:
+                task.complitation_date = None
+
+    # tm.save()
 
     # print(tm.story_count())
     # for task in tm.tasks_squeeze(show_all=True):
     #     print (task.name)
 
     # print (tm.last_activity())
-    tm.save()
+
+
     print (tasks_df)
     # print(tasks_df)
 

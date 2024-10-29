@@ -1,51 +1,67 @@
 
 import streamlit as st
-# Function to create collapsible forms
-def create_form(form_name):
-    with st.expander(form_name, expanded=True):
-        st.write("stories description")
-        s_col1,empty_col, s_col2 = st.columns([1.5, 0.5, 1.5],)
-        with s_col1:
-            st.button("Task 1",use_container_width=False,key="task_button_id")
-            st.button("Task 3")
+import taskmanagement as tm
 
-        with s_col2:
-            st.button("Task 2",use_container_width=False)
-            st.button("Task 4")
-            
-def create_form2(form_name):
-    with st.expander(form_name, expanded=True):
-        s_col1,empty_col, s_col2 = st.columns([1.5, 0.5, 1.5],)
-        with s_col1:
-            st.button("Task 9",use_container_width=False)
-            st.button("Task 99")
+tasktm = tm.TaskManagement()
 
-        with s_col2:
-            st.button("Task 45",use_container_width=False)
-            st.button("Task 65")
+
+
+
+
+
 class AddActivity():
-    def __init__(self):
+    def __init__(self, tasktm):
     # Create 5 buttons and corresponding forms
+        self.tasktm = tasktm
 
         st.set_page_config(layout="wide")
         st.markdown("<h1 style='text-align: center;'>Add Activity</h1>", unsafe_allow_html=True)
         # Filters section
-        e_col_1, e_col_2, e_col_3 = st.columns(3)
-        e_col_1.button("Epic 1",use_container_width=True)
-        e_col_2.button("Epic 2",use_container_width=True)
-        e_col_3.button("Epic 3",use_container_width=True)
-        # Create 3 columns
+        if 'first_run' not in st.session_state:
+            st.session_state.first_run = False
 
-        with st.sidebar:
-            with st.container(border=True):
-                st.text("Story 1 > Task 1")
-                st.date_input("date")
-                st.button("Complete Task")
+        
+        e_cols = st.columns(len(self.tasktm.epics))
+        for i, epic in enumerate(self.tasktm.epics):
+            e_cols[i].button(epic.name,use_container_width=True, key=epic.id)
+        
 
+        for story_frame in self.tasktm.stories_squeeze():
+            with st.expander(story_frame.name, expanded=True):
+                    st.write(story_frame.description)
+                    s_col1,empty_col, s_col2 = st.columns([1.5, 0.5, 1.5],)
+                    task_vertical = True
+                    for task in story_frame.tasks:
+                        # print (f'{task.name} - {task.is_completed}')
+                        if task.is_completed == 'true':
+                            task_disabled = True
+                        else:
+                            task_disabled = False
+                        if task_vertical:
+                            with s_col1:
+                                if st.button(task.name,use_container_width=False,key=f'task_button{task.id}', disabled=task_disabled):
+                                    st.session_state.task = task
+                            task_vertical = False
+                        else:
+                            with s_col2:
+                                if st.button(task.name,use_container_width=False,key=f'task_button{task.id}', disabled=task_disabled):
+                                    st.session_state.task = task
+                            task_vertical = True
+        self.SideProperty()
+    def SideProperty(self):
+        if 'task' in st.session_state:
+            task = st.session_state.task
+            story_name =  [story.name for story in self.tasktm.stories_squeeze() if story.id==task.story_id ]
+            with st.sidebar:
+                with st.container(border=True):
+                    st.text(f"{story_name[0]} > {task.name}")
+                    task_complete_date = st.date_input("date")
+                    if st.button("Complete Task"):
+                        st.text("Task has beend added")
+                        self.tasktm.complete_task(task, task_complete_date)
+                        del st.session_state.task
+                        st.rerun()
 
+                   
 
-        create_form("Story 1")
-        create_form2("Story 2")
-
-
-page_view = AddActivity()
+page_view = AddActivity(tasktm)
