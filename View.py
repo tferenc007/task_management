@@ -6,8 +6,12 @@ import taskmanagement as tm
 
 class View():
     def __init__(self):
+        if 'sidebar_visible' not in st.session_state:
+            st.session_state.sidebar_visible = True
 
-        st.set_page_config(page_title="View")
+            st.session_state.sidebar_visible = False
+
+            st.set_page_config(page_title="View")
         current_sprint_start= datetime.date(2024, 10, 21)
         start_date = current_sprint_start
         current_sprint_end= datetime.date(2024, 11, 3)
