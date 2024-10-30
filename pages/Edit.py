@@ -3,7 +3,7 @@ import streamlit as st # type: ignore
 st.markdown("<h1 style='text-align: center;'>Add/Edit</h1>", unsafe_allow_html=True)
 
 
-st.selectbox("Select Epic",("Sport/Health","Personal Development","Entertaiment","Home"))
+st.selectbox("Select Epic",["Sport/Health","Personal Development","Entertaiment","Home"])
 st.button("Edit Epic")
 st.button("Add New Story")
 with st.expander("Story 1"):

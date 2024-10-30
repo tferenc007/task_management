@@ -14,7 +14,7 @@ class View():
         end_date = current_sprint_end
 
         st.markdown("<h1 style='text-align: center;'>View</h1>", unsafe_allow_html=True)
-        st.selectbox("Select View",("Current"))
+        st.selectbox("Select View",["Current"])
         with st.sidebar:
             with st.container(border=True):
                 start_date = st.date_input("Start Date", current_sprint_start)
