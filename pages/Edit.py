@@ -8,13 +8,20 @@ tasktm = tm.TaskManagement()
 
 class Edit():
     def __init__(self, tasktm):
+        self.tasktm = tasktm
         st.markdown("<h1 style='text-align: center;'>Add/Edit</h1>", unsafe_allow_html=True)
 
-        tasktm.epics_to_list('name')
-        st.selectbox("Select Epic",tasktm.epics_to_list('name'))
-        st.button("Edit Epic")
-        st.button("Add New Story")
-        with st.expander("Story 1"):
+
+        selected_epic = st.selectbox("Select Epic",tasktm.epics_to_list('name'))
+        epic_col = st.columns([0.02, 0.98])
+
+        with epic_col[1].expander("Edit Epic"):
+            new_epic_name = self.edit_epic(selected_epic)
+        with epic_col[1].expander("Add New Story"):
+           st.write("cos")
+        st.text("--Story List--")
+        story_col = st.columns([0.02, 0.98])   
+        with story_col[1].expander("Story 1"):
             st.button("Edit Story")
             st.button("Add New Task")
             st.markdown("---")
@@ -24,9 +31,7 @@ class Edit():
             
 
         with st.sidebar:
-            st.write("Edit Epic")
-            st.text_input("Name",key="epic_text_input")
-            st.text_input("Description", key="epic_description")
+
             st.markdown("---")
             st.write("Edit Story")
             st.text_input("Name", key="story_name")
@@ -47,5 +52,18 @@ class Edit():
             st.markdown("---")
             st.button("Remove")
 
+    def edit_epic(self, selected_epic):       
+
+        
+        new_epic_name = st.text_input("Name",value=selected_epic)
+        if st.button("Save Epic"):
+
+            if selected_epic!=new_epic_name:
+
+                for ep in self.tasktm.epics:
+                    if ep.name == selected_epic:
+
+                        ep.name = new_epic_name
+                        self.tasktm.save()
 
 start = Edit(tasktm)
