@@ -43,12 +43,29 @@ class Edit():
 
 
     def add_new_story(self, selected_epic):
-        st.selectbox("Pick the story",['Add new story','Story 1', 'Story 2', 'Story 3'])       
-        story_name = st.text_input("Name",)
-        story_description = st.text_input("Description", )
-        story_est_start_date = st.date_input("Est Start Date")
-        story_est_end_date = st.date_input("Est End Date")
-        if st.button("Add New Story"):
+        ep = [epic for epic in tasktm.epics if epic.name == selected_epic][0]
+        ep_id = ep.id
+        story_list = tasktm.stories_to_list('name',ep_id)
+        story_list.insert(0,'Add new story')
+        picked_story = st.selectbox("Pick the story",story_list) 
+        if picked_story=='Add new story':
+            story_name = st.text_input("Name")
+            story_description = st.text_input("Description", )
+            story_est_start_date = st.date_input("Est Start Date")
+            story_est_end_date = st.date_input("Est End Date")
+        else:
+            picked_story_obj =   [story for story in ep.stories if story.name == picked_story][0]
+
+            est_start_date_date = datetime.strptime(picked_story_obj.est_start_date, "%Y-%m-%d")
+            est_end_date_date = datetime.strptime(picked_story_obj.est_end_date, "%Y-%m-%d")
+            
+            story_name = st.text_input("Name",value=picked_story_obj.name)
+            story_description = st.text_input("Description",value=picked_story_obj.description )
+            story_est_start_date = st.date_input("Est Start Date", value=est_start_date_date)
+            story_est_end_date = st.date_input("Est End Date", value=est_end_date_date)
+            
+
+        if st.button("Add / Edit Story"):
             validation_text = self.story_validation(story_name, story_est_start_date, story_est_end_date)
             if validation_text=='Success':
                 st.success("Story was added")

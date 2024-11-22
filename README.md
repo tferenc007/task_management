@@ -1,5 +1,7 @@
 # task_management
 
+## done
+
 ## baklog
 ### [tm-1] 
     Fulfill all information if story is selected.

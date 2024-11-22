@@ -124,6 +124,16 @@ class TaskManagement:
         elif field_name == 'id':
             epic_list = [epic.id for epic in self.epics]
         return epic_list
+    
+    def stories_to_list(self, field_name, epic_id):
+        
+        ep = [epic for epic in self.epics if epic.id == epic_id][0]
+
+        if field_name == 'name':
+            story_list = [story.name for story in ep.stories]
+        elif field_name == 'id':
+            story_list = [story.id for story in ep.stories]
+        return story_list
         
     def save(self):
 
