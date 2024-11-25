@@ -55,6 +55,7 @@ class Edit():
             story_est_end_date = st.date_input("Est End Date")
         else:
             picked_story_obj =   [story for story in ep.stories if story.name == picked_story][0]
+            st_id = picked_story_obj.id
 
             est_start_date_date = datetime.strptime(picked_story_obj.est_start_date, "%Y-%m-%d")
             est_end_date_date = datetime.strptime(picked_story_obj.est_end_date, "%Y-%m-%d")
@@ -68,6 +69,31 @@ class Edit():
         if st.button("Add / Edit Story"):
             validation_text = self.story_validation(story_name, story_est_start_date, story_est_end_date)
             if validation_text=='Success':
+                if picked_story=='Add new story':
+                    for ep in tasktm.epics:
+                         if ep.id == ep_id:
+                            new_story = tm.Story(df=tasktm.df_stories)
+                            new_story.name = story_name
+                            new_story.epic_id = ep_id
+                            new_story.description = story_description
+                            new_story.est_start_date = str(story_est_start_date)
+                            new_story.est_end_date = str(story_est_end_date)
+                            ep.stories.append(new_story)
+                            tasktm.save()
+                            break
+
+                else:
+                     for ep in tasktm.epics:
+                         if ep.id == ep_id:
+                             for sto in ep.stories:
+                                 if sto.id== st_id:
+                                    sto.name = story_name
+                                    sto.est_start_date = picked_story_obj.est_start_date
+                                    sto.est_end_date = picked_story_obj.est_end_date
+                                    sto.description = story_description
+                                    tasktm.save()
+                                    break
+
                 st.success("Story was added")
                 time.sleep(3)
                 st.rerun()

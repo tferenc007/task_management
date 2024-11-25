@@ -18,20 +18,28 @@ class TaskManagement:
 
     def __init__(self):
         conn = sq.connect('data/database.db')
-        epic_df = pd.read_sql_query("SELECT * FROM epics", conn, dtype=str)
-        stories_df = pd.read_sql_query("SELECT * FROM stories", conn, dtype=str)
-        tasks_df = pd.read_sql_query("SELECT * FROM tasks", conn, dtype=str)
+        self.epic_df = pd.read_sql_query("SELECT * FROM epics", conn, dtype=str)
+        self.stories_df = pd.read_sql_query("SELECT * FROM stories", conn, dtype=str)
+        self.tasks_df = pd.read_sql_query("SELECT * FROM tasks", conn, dtype=str)
         conn.close()
         
-        epic_ids = epic_df["id"].tolist()
+        epic_ids = self.epic_df["id"].tolist()
         self._epics = []
         for ei in epic_ids:
             epic = Epic(epic_id=ei)
-            epic.get_attr(epic_df)
-            epic.get_all_stories(story_df=stories_df, task_df=tasks_df)
+            epic.get_attr(self.epic_df)
+            epic.get_all_stories(story_df=self.stories_df, task_df=self.tasks_df)
             self._epics.append(epic)
 
-
+    @property
+    def df_epic(self):
+        return self.epic_df
+    @property
+    def df_stories(self):
+        return self.stories_df
+    @property
+    def df_tasks(self):
+        return self.tasks_df
     @property
     def epics(self):
         return self._epics
@@ -157,8 +165,7 @@ class TaskManagement:
         e_df = pd.DataFrame(epic_dic)
         s_df = pd.DataFrame(story_dic)
         t_df = pd.DataFrame(task_dic)
-
-        #save object to database
+        # save object to database
         conn = sq.connect('data/database.db')
         e_df.to_sql('epics', conn, if_exists='replace', index=False)
         s_df.to_sql('stories', conn, if_exists='replace', index=False)
@@ -203,8 +210,15 @@ class Epic:
         return self._stories
     
 class Story:
-    def __init__(self, story_id):
-        self._id = story_id
+    def __init__(self, df=None, story_id=None):
+        if story_id == None:
+            df['id'] = df['id'].astype(int)
+            # print(df)
+            self._id = str(df['id'].max()+1)
+            print(df)
+        else:
+            self._id = story_id
+
         self._epic_id = None
         self._tasks = []
         self._name = None
