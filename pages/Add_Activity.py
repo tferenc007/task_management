@@ -40,9 +40,9 @@ class AddActivity():
                 st.session_state.epic_list = [epic.id for epic in self.tasktm.epics]
                 st.session_state.epic_list = [e for e in st.session_state.epic_list if e == epic.id]
                 self.is_button_clicked = True
-        
+        print(st.session_state.epic_list)
         stories = [story for story in self.tasktm.stories_squeeze(is_completed=False) if story.epic_id in st.session_state.epic_list]
-        
+        print(stories)
         for story_frame in stories:
             with st.expander(story_frame.name, expanded=True):
                     st.write(story_frame.description)
