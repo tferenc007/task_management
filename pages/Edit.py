@@ -65,6 +65,13 @@ class Edit():
             story_est_start_date = st.date_input("Est Start Date", value=est_start_date_date)
             story_est_end_date = st.date_input("Est End Date", value=est_end_date_date)
             
+            if st.button('Delete Story'):
+                for ep in tasktm.epics:
+                    ep.stories[:] = [sto for sto in ep.stories if sto.id != st_id]
+                tasktm.save()
+                st.success("Story was deleted")
+                time.sleep(1)
+                st.rerun()
 
         if st.button("Add / Edit Story"):
             validation_text = self.story_validation(story_name, story_est_start_date, story_est_end_date)
@@ -95,7 +102,7 @@ class Edit():
                                     break
 
                 st.success("Story was added")
-                time.sleep(3)
+                time.sleep(2)
                 st.rerun()
             else:
                 
@@ -144,7 +151,15 @@ class Edit():
             else:
                 task_is_cancelled= st.checkbox("Is cancelled", value=False)
 
-
+        if st.button('Delete Task'):
+            for ep in tasktm.epics:
+                for sto in ep.stories:
+                    sto.tasks[:] = [task for task in sto.tasks if task.id != picked_task_obj.id]
+                    
+            tasktm.save()
+            st.success("Task was deleted")
+            time.sleep(1)
+            st.rerun()
         task_validation = self.task_validation()
         if st.button("Save / Add"):
             if task_validation=='Success':
@@ -192,7 +207,7 @@ class Edit():
                                             break
 
                 st.success("Story was added")
-                time.sleep(3)
+                time.sleep(2)
                 st.rerun()
             else:
                 st.error(f"Adding new story has been failed - {task_validation}")
