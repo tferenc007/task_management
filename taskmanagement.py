@@ -333,8 +333,13 @@ class Story:
         return i
 
 class Task:
-    def __init__(self,task_id, task_name=None, task_desc=None):
-        self._stori_id = None
+    def __init__(self,task_id=None, task_name=None, task_desc=None, df=None):
+        if task_id == None:
+            df['id'] = df['id'].astype(int)
+            self._id = str(df['id'].max()+1)
+        else:
+            self._id = task_id
+        self._story_id = None
         self._id = task_id
         self._name = task_name
         self._description = task_desc
