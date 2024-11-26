@@ -17,7 +17,7 @@ class Edit():
 
         with epic_col[1].expander("Edit Epic"):
             new_epic_name = self.edit_epic(selected_epic)
-        with epic_col[1].expander("Add New Story"):
+        with epic_col[1].expander("Add/Edit New Story"):
             self.add_new_story(selected_epic)
 
         story_col = st.columns([0.02, 0.98]) 
@@ -43,8 +43,7 @@ class Edit():
 
 
     def add_new_story(self, selected_epic):
-        ep = [epic for epic in tasktm.epics if epic.name == selected_epic][0]
-        ep_id = ep.id
+        ep_id = tasktm.epic_id_by_name(selected_epic)
         story_list = tasktm.stories_to_list('name',ep_id)
         story_list.insert(0,'Add new story')
         picked_story = st.selectbox("Pick the story",story_list) 
@@ -105,9 +104,14 @@ class Edit():
         return 'Success'
     
 
-    def add_edit_task(self, selected_epic):       
-        st.selectbox("Pick the story", ['Story 1', 'Story 2', 'Story 3'])
-        st.selectbox('Pick the task',['Add new task', 'task 2', 'task 3',]) 
+    def add_edit_task(self, selected_epic): 
+        ep_id = tasktm.epic_id_by_name(selected_epic)
+        story_list = tasktm.stories_to_list('name',ep_id) 
+        selected_story = st.selectbox("Pick the story", story_list)
+        st_id = tasktm.story_id_by_name(selected_story,selected_epic) 
+        task_list = tasktm.tasks_to_list('name',st_id)
+        task_list.insert(0,'Add new task')
+        st.selectbox('Pick the task',task_list) 
         task_name = st.text_input("Task Name")
         task_description  = st.text_input("Desclription ")
         task_is_completed = st.checkbox("Is completed")

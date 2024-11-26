@@ -142,6 +142,24 @@ class TaskManagement:
         elif field_name == 'id':
             story_list = [story.id for story in ep.stories]
         return story_list
+    def tasks_to_list(self, field_name, story_id):
+        
+        all_stories = self.stories_squeeze()
+        story = [story for story in all_stories if story.id==story_id][0]
+
+
+        if field_name == 'name':
+            tasks_list = [stor.name for stor in story.tasks]
+        elif field_name == 'id':
+            tasks_list = [stor.id for stor in story.tasks]
+        return tasks_list
+    
+    def epic_id_by_name(self, epic_name):
+        return [epic.id for epic in self.epics if epic.name == epic_name][0]
+    
+    def story_id_by_name(self, story_name, epic_name):
+        ep = [epic for epic in self.epics if epic.name == epic_name][0]
+        return [story.id for story in ep.stories if story.name == story_name][0]
         
     def save(self):
 
@@ -407,13 +425,8 @@ if __name__ =='__main__':
 
     # print(tasks_df)
     tm = TaskManagement()
+    print(tm.epic_id_by_name("Sport/Health"))
     
-    for epic in tm.epics:
-        for story in epic.stories:
-            for task in story.tasks:
-                task.complitation_date = None
-
-    tm.save()
 
     # print(tm.story_count())
     # for task in tm.tasks_squeeze(show_all=True):
