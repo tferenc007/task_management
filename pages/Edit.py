@@ -175,6 +175,7 @@ class Edit():
                             for sto in ep.stories:
                                 if sto.id==st_id:
                                     new_task = tm.Task(df=tasktm.df_tasks)
+
                                     new_task.name = task_name
                                     new_task.story_id = str(st_id)
                                     new_task.description = task_description

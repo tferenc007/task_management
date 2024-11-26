@@ -406,7 +406,6 @@ class Task:
         else:
             self._id = task_id
         self._story_id = None
-        self._id = task_id
         self._name = task_name
         self._description = task_desc
         self._is_completed = None
@@ -450,7 +449,7 @@ class Task:
     @complitation_date.setter   
     def complitation_date(self, value):
         self._complitation_date = value
-        if value !=None:
+        if  value !=None:    
             self._is_completed = 'true'
         else:
             self._is_completed = 'false'

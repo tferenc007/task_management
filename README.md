@@ -9,14 +9,16 @@
 ### [tm-5] Make button Save / Add working
 ### [tm-6] Add feature to remove story/task
 ### [tm_8] feature: View > Add ability chose data by sprint (need to create a db table with sprint calendar) 
+### [tm-9] feature: Add Activity>  add checkbox to show only current sprint
 
 ## backlog
 
 ### [tm-7] Add feature for validation added stories/tasks
+### [tm-10] bug: Add Activity>  when I change date for adding activity date input disappear
 
 
 ## backlog phase 2
 ### [tm_p2-1] bug: Edi>Add/Edit Task> user cant pick is completed and is cancelled checkbox at the same time
 
 ## spikes
-### [tm_s_1] what if story is not completed within est time period/sprint?
+### [tm_s_1] what if story is not completed within sprint time period/sprint?

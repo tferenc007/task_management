@@ -23,15 +23,18 @@ class AddActivity():
         if 'header_success' not in st.session_state:
             st.session_state.header_success = False
 
+        if 'current_sprint_flag' not in st.session_state:
+            st.session_state.current_sprint_flag = True
+
         if st.session_state.header_success:
             st.success("Task has been completed")
             time.sleep(2)
             st.session_state.header_success = False
             st.rerun()
 
+        current_sprint_flag = st.checkbox("Current Sprint", value=st.session_state.current_sprint_flag)
         e_cols = st.columns(len(self.tasktm.epics))
         
-
         if st.button('All Filters',use_container_width=True, key='all filters'):
             st.session_state.epic_list = self.tasktm.epics_to_list('id')
             self.is_button_clicked = True
@@ -40,7 +43,12 @@ class AddActivity():
                 st.session_state.epic_list = [epic.id for epic in self.tasktm.epics]
                 st.session_state.epic_list = [e for e in st.session_state.epic_list if e == epic.id]
                 self.is_button_clicked = True
-        stories = [story for story in self.tasktm.stories_squeeze(is_completed=False) if story.epic_id in st.session_state.epic_list]
+        
+        if current_sprint_flag:
+            cs = tasktm.get_current_sprint_id()
+            stories = [story for story in self.tasktm.stories_squeeze(is_completed=False) if story.epic_id in st.session_state.epic_list and story.sprint_id==cs]
+        else:
+            stories = [story for story in self.tasktm.stories_squeeze(is_completed=False) if story.epic_id in st.session_state.epic_list]
         for story_frame in stories:
             with st.expander(story_frame.name, expanded=True):
                     st.write(story_frame.description)
