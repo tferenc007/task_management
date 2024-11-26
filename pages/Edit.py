@@ -50,21 +50,25 @@ class Edit():
         picked_story = st.selectbox("Pick the story",story_list) 
         if picked_story=='Add new story':
             story_name = st.text_input("Name")
-            story_description = st.text_input("Description", )
-            story_est_start_date = st.date_input("Est Start Date")
-            story_est_end_date = st.date_input("Est End Date")
+            story_description = st.text_input("Description")
+            sprint_id = st.selectbox("Sprint", tasktm.dic_sprint.keys() )
+            sprint_start_date = datetime.strptime(tasktm.dic_sprint[sprint_id]['sprint_start_date'], "%Y-%m-%d")
+            sprint_end_date = datetime.strptime(tasktm.dic_sprint[sprint_id]['sprint_end_date'], "%Y-%m-%d")
+            story_est_start_date = st.date_input("Est Start Date",value=sprint_start_date, disabled=True)
+            story_est_end_date = st.date_input("Est End Date", value=sprint_end_date, disabled=True)
         else:
             picked_story_obj =   [story for story in ep.stories if story.name == picked_story][0]
             st_id = picked_story_obj.id
 
-            est_start_date_date = datetime.strptime(picked_story_obj.est_start_date, "%Y-%m-%d")
-            est_end_date_date = datetime.strptime(picked_story_obj.est_end_date, "%Y-%m-%d")
             
             story_name = st.text_input("Name",value=picked_story_obj.name)
-            story_description = st.text_input("Description",value=picked_story_obj.description )
-            story_est_start_date = st.date_input("Est Start Date", value=est_start_date_date)
-            story_est_end_date = st.date_input("Est End Date", value=est_end_date_date)
+            story_description = st.text_input("Description",value=picked_story_obj.description)
+            sprint_id = st.selectbox("Sprint", tasktm.dic_sprint.keys(), index=picked_story_obj.story_index)
+            sprint_start_date = datetime.strptime(tasktm.dic_sprint[sprint_id]['sprint_start_date'], "%Y-%m-%d")
+            sprint_end_date = datetime.strptime(tasktm.dic_sprint[sprint_id]['sprint_end_date'], "%Y-%m-%d")
             
+            story_est_start_date = st.date_input("Est Start Date",value=sprint_start_date, disabled=True)
+            story_est_end_date = st.date_input("Est End Date", value=sprint_end_date, disabled=True)
             if st.button('Delete Story'):
                 for ep in tasktm.epics:
                     ep.stories[:] = [sto for sto in ep.stories if sto.id != st_id]
@@ -85,6 +89,7 @@ class Edit():
                             new_story.description = story_description
                             new_story.est_start_date = str(story_est_start_date)
                             new_story.est_end_date = str(story_est_end_date)
+                            new_story.sprint_id = str(sprint_id)
                             ep.stories.append(new_story)
                             tasktm.save()
                             break
@@ -98,6 +103,7 @@ class Edit():
                                     sto.est_start_date = picked_story_obj.est_start_date
                                     sto.est_end_date = picked_story_obj.est_end_date
                                     sto.description = story_description
+                                    sto.sprint_id = str(sprint_id)
                                     tasktm.save()
                                     break
 
@@ -155,7 +161,7 @@ class Edit():
             for ep in tasktm.epics:
                 for sto in ep.stories:
                     sto.tasks[:] = [task for task in sto.tasks if task.id != picked_task_obj.id]
-                    
+
             tasktm.save()
             st.success("Task was deleted")
             time.sleep(1)

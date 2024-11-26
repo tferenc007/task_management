@@ -1,6 +1,7 @@
 import pandas as pd
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import sqlite3 as sq
+import re
 
 
 # epic_df = pd.read_csv("data/epics.csv")
@@ -21,10 +22,12 @@ class TaskManagement:
         self.epic_df = pd.read_sql_query("SELECT * FROM epics", conn, dtype=str)
         self.stories_df = pd.read_sql_query("SELECT * FROM stories", conn, dtype=str)
         self.tasks_df = pd.read_sql_query("SELECT * FROM tasks", conn, dtype=str)
+        self.sprint_dic = self.__create_sprint_dataframe(sprint_days=14, start_date='2024-11-18',sprint_number=100)
         conn.close()
         
         epic_ids = self.epic_df["id"].tolist()
         self._epics = []
+
         for ei in epic_ids:
             epic = Epic(epic_id=ei)
             epic.get_attr(self.epic_df)
@@ -34,6 +37,9 @@ class TaskManagement:
     @property
     def df_epic(self):
         return self.epic_df
+    @property
+    def dic_sprint(self):
+        return self.sprint_dic
     @property
     def df_stories(self):
         return self.stories_df
@@ -172,14 +178,13 @@ class TaskManagement:
             epic_dic.append(dic)
             for story in epic.stories:
                 s_dic = {'epic_id': story.epic_id, 'id': story.id, 'name': story.name, 'description': story.description,
-                        'est_start_date': story.est_start_date, 'est_end_date': story.est_end_date}
+                        'est_start_date': story.est_start_date, 'est_end_date': story.est_end_date, 'sprint_id': story.sprint_id}
                 story_dic.append(s_dic)
                 for task in story.tasks:
                     t_dic = {'story_id' : task.story_id, 'id': task.id, 'name': task.name,
                              'description': task.description, 'is_completed': task._is_completed,
                              'complitation_date': task.complitation_date, 'is_cancelled': task.is_cancelled}
                     task_dic.append(t_dic)
-
         e_df = pd.DataFrame(epic_dic)
         s_df = pd.DataFrame(story_dic)
         t_df = pd.DataFrame(task_dic)
@@ -189,7 +194,50 @@ class TaskManagement:
         s_df.to_sql('stories', conn, if_exists='replace', index=False)
         t_df.to_sql('tasks', conn, if_exists='replace', index=False)
         conn.close()
+    def get_current_sprint_id(self, type='id'):
+        """
+        Return the sprint_id from the DataFrame where today's date is between the start and end dates of the sprint.
 
+        Parameters:
+        df (pd.DataFrame): The DataFrame containing sprint information.
+
+        Returns:
+        str: The sprint_id of the current sprint, or None if no current sprint is found.
+        """
+        today = datetime.today().strftime('%Y-%m-%d')
+        
+        for sprint_id, dates in self.dic_sprint.items():
+            if dates['sprint_start_date'] <= today <= dates['sprint_end_date']:
+                if type=='id':
+                    return sprint_id
+                elif type=='index':
+                    match = re.search(r'\b\d+\b', sprint_id)
+                    if match:
+                        return int(match.group())-1
+        
+        return None
+    def __create_sprint_dataframe(self, sprint_days,start_date, sprint_number ):
+        # Initialize the list to store sprint data
+        sprint_data = []
+        
+        # Set the start date for the first sprint
+        start_date =  datetime.strptime(start_date, "%Y-%m-%d")
+        
+        # Loop to create data for 10 sprints
+        for sprint_number in range(1, sprint_number):
+            end_date = start_date + timedelta(days=sprint_days - 1)
+            sprint_data.append({
+                'sprint_id': f"Sprint {sprint_number}",
+                'sprint_start_date': start_date.strftime('%Y-%m-%d'),
+                'sprint_end_date': end_date.strftime('%Y-%m-%d')
+            })
+            # Update the start date for the next sprint
+            start_date = end_date + timedelta(days=1)
+        
+        # Create a DataFrame from the sprint data
+        df = pd.DataFrame(sprint_data)
+    
+        return df.set_index('sprint_id').to_dict(orient='index')
 
 
 class Epic:
@@ -241,6 +289,23 @@ class Story:
         self._description = None
         self._est_start_date = None
         self._est_end_date = None
+        self._sprint_id = None
+        self._story_index = ''
+    @property
+    def sprint_id(self):
+        return self._sprint_id
+    
+    @sprint_id.setter
+    def sprint_id(self, value):
+        self._sprint_id = value
+
+    @property
+    def story_index(self):
+        match = re.search(r'\b\d+\b', self._sprint_id)
+        if match:
+            return int(match.group())-1
+        else:
+            None
 
     @property
     def is_completed(self):
@@ -310,6 +375,7 @@ class Story:
                 self._description = story_df.loc[story_df["id"] == self.id, "description"].squeeze()
                 self._est_start_date = story_df.loc[story_df["id"] == self.id, "est_start_date"].squeeze()
                 self._est_end_date = story_df.loc[story_df["id"] == self.id, "est_end_date"].squeeze()
+                self._sprint_id = story_df.loc[story_df["id"] == self.id, "sprint_id"].squeeze()
                 return True
 
 
