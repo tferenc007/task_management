@@ -154,12 +154,12 @@ class TaskManagement:
             tasks_list = [stor.id for stor in story.tasks]
         return tasks_list
     
-    def epic_id_by_name(self, epic_name):
-        return [epic.id for epic in self.epics if epic.name == epic_name][0]
+    def epic_by_name(self, epic_name):
+        return [epic for epic in self.epics if epic.name == epic_name][0]
     
-    def story_id_by_name(self, story_name, epic_name):
+    def story_by_name(self, story_name, epic_name):
         ep = [epic for epic in self.epics if epic.name == epic_name][0]
-        return [story.id for story in ep.stories if story.name == story_name][0]
+        return [story for story in ep.stories if story.name == story_name][0]
         
     def save(self):
 
@@ -231,9 +231,7 @@ class Story:
     def __init__(self, df=None, story_id=None):
         if story_id == None:
             df['id'] = df['id'].astype(int)
-            # print(df)
             self._id = str(df['id'].max()+1)
-            print(df)
         else:
             self._id = story_id
 
@@ -342,7 +340,7 @@ class Task:
         self._description = task_desc
         self._is_completed = None
         self._complitation_date = None
-        self._is_cancelled = False
+        self._is_cancelled = 'false'
     @property
     def story_id(self):
         return self._story_id

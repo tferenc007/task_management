@@ -43,7 +43,8 @@ class Edit():
 
 
     def add_new_story(self, selected_epic):
-        ep_id = tasktm.epic_id_by_name(selected_epic)
+        ep = tasktm.epic_by_name(selected_epic)
+        ep_id = ep.id
         story_list = tasktm.stories_to_list('name',ep_id)
         story_list.insert(0,'Add new story')
         picked_story = st.selectbox("Pick the story",story_list) 
@@ -105,18 +106,45 @@ class Edit():
     
 
     def add_edit_task(self, selected_epic): 
-        ep_id = tasktm.epic_id_by_name(selected_epic)
+        ep = tasktm.epic_by_name(selected_epic)
+        ep_id = ep.id
         story_list = tasktm.stories_to_list('name',ep_id) 
         selected_story = st.selectbox("Pick the story", story_list)
-        st_id = tasktm.story_id_by_name(selected_story,selected_epic) 
+        st_ = tasktm.story_by_name(selected_story,selected_epic) 
+        st_id = st_.id
         task_list = tasktm.tasks_to_list('name',st_id)
         task_list.insert(0,'Add new task')
-        st.selectbox('Pick the task',task_list) 
-        task_name = st.text_input("Task Name")
-        task_description  = st.text_input("Desclription ")
-        task_is_completed = st.checkbox("Is completed")
-        task_complitation_date = st.date_input("Complitation date")
-        task_is_cancelled= st.checkbox("Is cancelled")
+        picked_task = st.selectbox('Pick the task',task_list) 
+
+
+        if picked_task=='Add new task':
+            task_name = st.text_input("Task Name")
+            task_description  = st.text_input("Desclription ")
+            task_is_completed = st.checkbox("Is completed", value=False)
+            if task_is_completed:
+                task_complitation_date = st.date_input("Complitation date")
+            task_is_cancelled= st.checkbox("Is cancelled", value=False)
+
+        else:
+            picked_task_obj =   [task for task in st_.tasks if task.name == picked_task][0]
+            task_name = st.text_input("Task Name", value=picked_task_obj.name)
+            task_description  = st.text_input("Desclription", value=picked_task_obj.description )
+            if picked_task_obj.is_completed=='true':
+                complitation_date = datetime.strptime(picked_task_obj.complitation_date, "%Y-%m-%d")
+                task_is_completed = st.checkbox("Is completed", value=True)
+                task_complitation_date = st.date_input("Complitation date", value=complitation_date)
+            else:
+                task_is_completed = st.checkbox("Is completed", value=False)
+                if task_is_completed:
+                    task_complitation_date = st.date_input("Complitation date")
+
+            if picked_task_obj.is_cancelled=='true':
+                task_is_cancelled= st.checkbox("Is cancelled", value=True)
+                
+            else:
+                task_is_cancelled= st.checkbox("Is cancelled", value=False)
+
+
         task_validation = self.task_validation()
         if st.button("Save / Add"):
             if task_validation=='Success':
