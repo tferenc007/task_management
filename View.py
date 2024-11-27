@@ -61,7 +61,7 @@ class View():
             st.download_button(
                 label="Download Database",
                 data=f,
-                file_name='your_database.db',
+                file_name='database.db',
                 mime='application/octet-stream'
         )
   
