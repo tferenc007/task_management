@@ -10,11 +10,13 @@
 ### [tm-6] Add feature to remove story/task
 ### [tm_8] feature: View > Add ability chose data by sprint (need to create a db table with sprint calendar) 
 ### [tm-9] feature: Add Activity>  add checkbox to show only current sprint
+### [tm-11] feature: Export db button
 
 ## backlog
 
 ### [tm-7] Add feature for validation added stories/tasks
 ### [tm-10] bug: Add Activity>  when I change date for adding activity date input disappear
+### [tm-11] feature: Edit > add dropdown to select sprint sprint
 
 
 ## backlog phase 2

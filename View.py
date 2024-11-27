@@ -1,6 +1,7 @@
 import streamlit as st # type: ignore
 import datetime
 import taskmanagement as tm
+import os
 
 
 
@@ -16,16 +17,16 @@ class View():
         st.markdown("<h1 style='text-align: center;'>View</h1>", unsafe_allow_html=True)
         st.selectbox("Select View",["Current"])
         with st.sidebar:
-            with st.container(border=True):
-                sprint_id = st.selectbox('sprint', taskm.dic_sprint.keys(),index=taskm.get_current_sprint_id('index'))
-                current_sprint_start = taskm.dic_sprint[sprint_id]["sprint_start_date"]
-                current_sprint_start= datetime.datetime.strptime(current_sprint_start, "%Y-%m-%d")
+            self.export_db()
+        sprint_id = st.selectbox('Select Sprint', taskm.dic_sprint.keys(),index=taskm.get_current_sprint_id('index'))
+        current_sprint_start = taskm.dic_sprint[sprint_id]["sprint_start_date"]
+        current_sprint_start= datetime.datetime.strptime(current_sprint_start, "%Y-%m-%d")
 
-                current_sprint_end = taskm.dic_sprint[sprint_id]["sprint_end_date"]
-                current_sprint_end= datetime.datetime.strptime(current_sprint_end, "%Y-%m-%d")
+        current_sprint_end = taskm.dic_sprint[sprint_id]["sprint_end_date"]
+        current_sprint_end= datetime.datetime.strptime(current_sprint_end, "%Y-%m-%d")
 
-                start_date = st.date_input("Start Date", current_sprint_start, disabled=True)
-                end_date = st.date_input("End Date", current_sprint_end, disabled=True)
+        start_date = current_sprint_start.date()
+        end_date = current_sprint_end.date()
 
         last_activity = taskm.last_activity(start_date, end_date)
         with st.container(border=True):          
@@ -34,7 +35,7 @@ class View():
             else:
                 st.markdown(f'Last Activity &emsp;&emsp; **:red[{last_activity}]** ')
         with st.container(border=True):
-            st.markdown(f"<h5 style='text-align: center;'>Current Sprint: from {start_date} to {end_date}</h5>", unsafe_allow_html=True)    
+            st.markdown(f"<h5 style='text-align: center;'>From {start_date} To {end_date}</h5>", unsafe_allow_html=True)    
             story_all = taskm.story_count(start_date, end_date)
             story_completed = taskm.story_count(start_date, end_date,is_completed=True)
             task_all = taskm.task_count(start_date, end_date)
@@ -47,7 +48,7 @@ class View():
             coll_2[1].markdown(f"{task_completed}/{task_all}")    
 
         with st.container(border=True):
-            st.markdown(f"<h5 style='text-align: center;'>Current Sprint: from {start_date} to {end_date}</h5>", unsafe_allow_html=True)       
+            st.markdown(f"<h5 style='text-align: center;'>From {start_date} To {end_date}</h5>", unsafe_allow_html=True)       
   
 
             story_list = taskm.stories_squeeze(start_date, end_date)
@@ -55,7 +56,14 @@ class View():
                 col = st.columns(2)
                 col[0].markdown(f'{story_name.name}')
                 col[1].markdown(f'{story_name.task_count(True)}/{story_name.task_count()}')
-                
+    def export_db(self):
+        with open('data/database.db', 'rb') as f:
+            st.download_button(
+                label="Download Database",
+                data=f,
+                file_name='your_database.db',
+                mime='application/octet-stream'
+        )
   
     
 taskm = tm.TaskManagement()
