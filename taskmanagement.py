@@ -58,6 +58,15 @@ class TaskManagement:
                         self.save()
 
 
+    def cancel_task(self, task_cancelled):
+        for epic in self.epics:
+            for story in epic.stories:
+                for task in story.tasks:
+                    if task.id == task_cancelled.id:
+                        task.is_cancelled = 'true'
+                        self.save()
+                        
+
     def tasks_squeeze(self, start_date=date(1900,1,1), end_date=date(2999,1,1), show_all=False):
         squeezed_tasks =[]
         for epic in self.epics:

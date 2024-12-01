@@ -48,9 +48,9 @@ class AddActivity():
         
         if current_sprint_flag:
             cs = tasktm.get_current_sprint_id()
-            stories = [story for story in self.tasktm.stories_squeeze(is_completed=False) if story.epic_id in st.session_state.epic_list and story.sprint_id==cs]
+            stories = [story for story in self.tasktm.stories_squeeze() if story.epic_id in st.session_state.epic_list and story.sprint_id==cs]
         else:
-            stories = [story for story in self.tasktm.stories_squeeze(is_completed=False) if story.epic_id in st.session_state.epic_list]
+            stories = [story for story in self.tasktm.stories_squeeze() if story.epic_id in st.session_state.epic_list]
         for story_frame in stories:
             with st.expander(story_frame.name, expanded=True):
                     st.write(story_frame.description)
@@ -59,27 +59,48 @@ class AddActivity():
                     for task in story_frame.tasks:
                         if task.is_completed == 'true':
                             task_disabled = True
+                            tick_mark = 'done'
+                        elif task.is_cancelled=='true':
+                            tick_mark = 'cancelled'
+                            task_disabled = True
                         else:
+                            tick_mark = 'none'
                             task_disabled = False
                         if task_vertical:
                             with s_col1:
-                                if st.button(task.name,use_container_width=False,key=f'task_button{task.id}', disabled=task_disabled):
-                                    st.session_state.button_clicked = f'task_button{task.id}'
-                                    st.rerun()
+                                c1,c2,c_emp = st.columns([1, 0.1, 1])
+                                with c1:
+
+                                    if st.button(task.name,use_container_width=False,key=f'task_button{task.id}', disabled=task_disabled):
+                                        st.session_state.button_clicked = f'task_button{task.id}'
+                                        st.rerun()
                                 if  st.session_state.button_clicked==f'task_button{task.id}':
                                     st.session_state.task = task
                                     self.add_to_db({task.id})
                                     # self.is_button_clicked = True
-                            task_vertical = False
+                                with c2:
+                                    if tick_mark=='done':
+                                        st.write("✅")
+                                    if tick_mark=='cancelled':
+                                        st.write("❌")
+                                task_vertical = False
                         else:
                             with s_col2:
-                                if st.button(task.name,use_container_width=False,key=f'task_button{task.id}', disabled=task_disabled):
-                                    st.session_state.button_clicked = f'task_button{task.id}'
-                                    st.rerun()
+                                c3,c4,c2_emp = st.columns([1, 0.1, 1])
+                                with c3:
+                                
+                                    if st.button(task.name,use_container_width=False,key=f'task_button{task.id}', disabled=task_disabled):
+                                        st.session_state.button_clicked = f'task_button{task.id}'
+                                        st.rerun()
                                 if st.session_state.button_clicked==f'task_button{task.id}':
                                     st.session_state.task = task
                                     self.add_to_db({task.id})
-                                   # self.is_button_clicked = True
+                                    # self.is_button_clicked = True
+                                with c4:
+                                    if tick_mark=='done':
+                                        st.write("✅")
+                                    if tick_mark=='cancelled':
+                                        st.write("❌")
                             task_vertical = True
 
         # if not self.is_button_clicked:
@@ -101,6 +122,13 @@ class AddActivity():
                     st.session_state.button_clicked=''
                     del st.session_state.task
                     st.rerun()      
+                if st.button("Cancel Task", key=f'task_cancel_button{task.id}') and task_complete_date <= today:
+                    self.tasktm.complete_task(task, task_complete_date)
+                    st.session_state.header_success = True
+                    st.session_state.button_clicked=''
+                    del st.session_state.task
+                    st.rerun()      
+                    
 
 
 page_view = AddActivity(tasktm)
