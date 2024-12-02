@@ -122,102 +122,103 @@ class Edit():
         ep = tasktm.epic_by_name(selected_epic)
         ep_id = ep.id
         story_list = tasktm.stories_to_list('name',ep_id) 
-        selected_story = st.selectbox("Pick the story", story_list)
-        st_ = tasktm.story_by_name(selected_story,selected_epic) 
-        st_id = st_.id
-        task_list = tasktm.tasks_to_list('name',st_id)
-        task_list.insert(0,'Add new task')
-        picked_task = st.selectbox('Pick the task',task_list) 
+        if len(story_list)>0:
+            selected_story = st.selectbox("Pick the story", story_list)
+            st_ = tasktm.story_by_name(selected_story,selected_epic) 
+            st_id = st_.id
+            task_list = tasktm.tasks_to_list('name',st_id)
+            task_list.insert(0,'Add new task')
+            picked_task = st.selectbox('Pick the task',task_list) 
 
 
-        if picked_task=='Add new task':
-            task_name = st.text_input("Task Name")
-            task_description  = st.text_input("Desclription ")
-            task_is_completed = st.checkbox("Is completed", value=False)
-            if task_is_completed:
-                task_complitation_date = st.date_input("Complitation date")
-            task_is_cancelled= st.checkbox("Is cancelled", value=False)
-
-        else:
-            picked_task_obj =   [task for task in st_.tasks if task.name == picked_task][0]
-            task_name = st.text_input("Task Name", value=picked_task_obj.name)
-            task_description  = st.text_input("Desclription", value=picked_task_obj.description )
-            if picked_task_obj.is_completed=='true':
-                complitation_date = datetime.strptime(picked_task_obj.complitation_date, "%Y-%m-%d")
-                task_is_completed = st.checkbox("Is completed", value=True)
-                task_complitation_date = st.date_input("Complitation date", value=complitation_date)
-            else:
+            if picked_task=='Add new task':
+                task_name = st.text_input("Task Name")
+                task_description  = st.text_input("Desclription ")
                 task_is_completed = st.checkbox("Is completed", value=False)
                 if task_is_completed:
                     task_complitation_date = st.date_input("Complitation date")
-
-            if picked_task_obj.is_cancelled=='true':
-                task_is_cancelled= st.checkbox("Is cancelled", value=True)
-
-            else:
                 task_is_cancelled= st.checkbox("Is cancelled", value=False)
 
-        if st.button('Delete Task'):
-            for ep in tasktm.epics:
-                for sto in ep.stories:
-                    sto.tasks[:] = [task for task in sto.tasks if task.id != picked_task_obj.id]
+            else:
+                picked_task_obj =   [task for task in st_.tasks if task.name == picked_task][0]
+                task_name = st.text_input("Task Name", value=picked_task_obj.name)
+                task_description  = st.text_input("Desclription", value=picked_task_obj.description )
+                if picked_task_obj.is_completed=='true':
+                    complitation_date = datetime.strptime(picked_task_obj.complitation_date, "%Y-%m-%d")
+                    task_is_completed = st.checkbox("Is completed", value=True)
+                    task_complitation_date = st.date_input("Complitation date", value=complitation_date)
+                else:
+                    task_is_completed = st.checkbox("Is completed", value=False)
+                    if task_is_completed:
+                        task_complitation_date = st.date_input("Complitation date")
 
-            tasktm.save()
-            st.success("Task was deleted")
-            time.sleep(1)
-            st.rerun()
-        task_validation = self.task_validation()
-        if st.button("Save / Add"):
-            if task_validation=='Success':
-                if picked_task=='Add new task':
-                    for ep in tasktm.epics:
-                         if ep.id == ep_id:
-                            for sto in ep.stories:
-                                if sto.id==st_id:
-                                    new_task = tm.Task(df=tasktm.df_tasks)
-
-                                    new_task.name = task_name
-                                    new_task.story_id = str(st_id)
-                                    new_task.description = task_description
-                                    if task_is_completed:
-                                        new_task.complitation_date = str(task_complitation_date)
-                                    else:
-                                        new_task.complitation_date = None
-                                    if task_is_cancelled:
-                                        new_task.is_cancelled = 'true'
-                                    else:
-                                        new_task.is_cancelled = 'false'
-                                    sto.tasks.append(new_task)
-                                    tasktm.save()
-                                    break
+                if picked_task_obj.is_cancelled=='true':
+                    task_is_cancelled= st.checkbox("Is cancelled", value=True)
 
                 else:
-                     for ep in tasktm.epics:
-                         if ep.id == ep_id:
-                             for sto in ep.stories:
-                                 if sto.id==st_id:
-                                    for tas in sto.tasks:
-                                        if tas.id==picked_task_obj.id:
+                    task_is_cancelled= st.checkbox("Is cancelled", value=False)
 
-                                            tas.name = task_name
-                                            tas.story_id = str(st_id)
-                                            tas.description = task_description
-                                            if task_is_completed:
-                                                tas.complitation_date = str(task_complitation_date)
-                                            else:
-                                                tas.complitation_date = None
-                                            if task_is_cancelled:
-                                                tas.is_cancelled = 'true'
-                                            else:
-                                                tas.is_cancelled = 'false'
-                                            tasktm.save()
-                                            break
+            if st.button('Delete Task'):
+                for ep in tasktm.epics:
+                    for sto in ep.stories:
+                        sto.tasks[:] = [task for task in sto.tasks if task.id != picked_task_obj.id]
 
-                st.success("Story was added")
-                time.sleep(2)
+                tasktm.save()
+                st.success("Task was deleted")
+                time.sleep(1)
                 st.rerun()
-            else:
-                st.error(f"Adding new story has been failed - {task_validation}")
+            task_validation = self.task_validation()
+            if st.button("Save / Add"):
+                if task_validation=='Success':
+                    if picked_task=='Add new task':
+                        for ep in tasktm.epics:
+                            if ep.id == ep_id:
+                                for sto in ep.stories:
+                                    if sto.id==st_id:
+                                        new_task = tm.Task(df=tasktm.df_tasks)
+
+                                        new_task.name = task_name
+                                        new_task.story_id = str(st_id)
+                                        new_task.description = task_description
+                                        if task_is_completed:
+                                            new_task.complitation_date = str(task_complitation_date)
+                                        else:
+                                            new_task.complitation_date = None
+                                        if task_is_cancelled:
+                                            new_task.is_cancelled = 'true'
+                                        else:
+                                            new_task.is_cancelled = 'false'
+                                        sto.tasks.append(new_task)
+                                        tasktm.save()
+                                        break
+
+                    else:
+                        for ep in tasktm.epics:
+                            if ep.id == ep_id:
+                                for sto in ep.stories:
+                                    if sto.id==st_id:
+                                        for tas in sto.tasks:
+                                            if tas.id==picked_task_obj.id:
+
+                                                tas.name = task_name
+                                                tas.story_id = str(st_id)
+                                                tas.description = task_description
+                                                if task_is_completed:
+                                                    tas.complitation_date = str(task_complitation_date)
+                                                else:
+                                                    tas.complitation_date = None
+                                                if task_is_cancelled:
+                                                    tas.is_cancelled = 'true'
+                                                else:
+                                                    tas.is_cancelled = 'false'
+                                                tasktm.save()
+                                                break
+
+                    st.success("Story was added")
+                    time.sleep(2)
+                    st.rerun()
+                else:
+                    st.error(f"Adding new story has been failed - {task_validation}")
 
 
     def task_validation(self):

@@ -13,6 +13,7 @@
 ### [tm-10] bug: Add Activity>  when I change date for adding activity date input disappear
 ### [tm-12] feature: Export db button
 ### [tm-13] bug: dont show cancelled tasks
+### [tm-14] bug: error when epic don't have any storiess added
 
 ## backlog
 

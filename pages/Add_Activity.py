@@ -33,7 +33,6 @@ class AddActivity():
         if st.session_state.header_success:
             st.success("Task has been completed")
             st.session_state.header_success = False
-        print(st.session_state.button_clicked)
         current_sprint_flag = st.checkbox("Current Sprint", value=st.session_state.current_sprint_flag)
         e_cols = st.columns(len(self.tasktm.epics))
         
