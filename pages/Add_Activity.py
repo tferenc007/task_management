@@ -59,19 +59,25 @@ class AddActivity():
                         if task.is_completed == 'true':
                             task_disabled = True
                             tick_mark = 'done'
+                            tooltip = f"Complitation date: {task.complitation_date}"
                         elif task.is_cancelled=='true':
                             tick_mark = 'cancelled'
                             task_disabled = True
+                            tooltip = f"Task was cancelled"
                         else:
                             tick_mark = 'none'
                             task_disabled = False
+                            tooltip = ""
                         if task_vertical:
                             with s_col1:
                                 c1,c2,c_emp = st.columns([1, 0.1, 1])
                                 with c1:
 
-                                    if st.button(task.name,use_container_width=False,key=f'task_button{task.id}', disabled=task_disabled):
-                                        st.session_state.button_clicked = f'task_button{task.id}'
+                                    if st.button(task.name,use_container_width=False,key=f'task_button{task.id}', disabled=task_disabled, help=tooltip):
+                                        if st.session_state.button_clicked == f'task_button{task.id}':
+                                            st.session_state.button_clicked = ''
+                                        else:
+                                            st.session_state.button_clicked = f'task_button{task.id}'
                                         st.rerun()
                                 if  st.session_state.button_clicked==f'task_button{task.id}':
                                     st.session_state.task = task
@@ -88,8 +94,11 @@ class AddActivity():
                                 c3,c4,c2_emp = st.columns([1, 0.1, 1])
                                 with c3:
                                 
-                                    if st.button(task.name,use_container_width=False,key=f'task_button{task.id}', disabled=task_disabled):
-                                        st.session_state.button_clicked = f'task_button{task.id}'
+                                    if st.button(task.name,use_container_width=False,key=f'task_button{task.id}', disabled=task_disabled, help=tooltip):
+                                        if st.session_state.button_clicked == f'task_button{task.id}':
+                                            st.session_state.button_clicked = ''
+                                        else:
+                                            st.session_state.button_clicked = f'task_button{task.id}'
                                         st.rerun()
                                 if st.session_state.button_clicked==f'task_button{task.id}':
                                     st.session_state.task = task
