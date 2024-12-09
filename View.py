@@ -57,13 +57,15 @@ class View():
                 col[0].markdown(f'{story_name.name}')
                 col[1].markdown(f'{story_name.task_count(True)}/{story_name.task_count()}')
     def export_db(self):
-        with open('data/database.db', 'rb') as f:
-            st.download_button(
-                label="Download Database",
-                data=f,
-                file_name='database.db',
-                mime='application/octet-stream'
-        )
+        # with open('data/database.db', 'rb') as f:
+        #     st.download_button(
+        #         label="Download Database",
+        #         data=f,
+        #         file_name='database.db',
+        #         mime='application/octet-stream'
+        # )
+        if st.button("Synch database"):
+            taskm.find_latest_email_and_save_attachment()
   
     
 taskm = tm.TaskManagement()
