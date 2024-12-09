@@ -2,7 +2,7 @@ import streamlit as st # type: ignore
 import datetime
 import taskmanagement as tm
 import os
-
+import backup_email as be
 
 
 class View():
@@ -65,7 +65,7 @@ class View():
         #         mime='application/octet-stream'
         # )
         if st.button("Synch database"):
-            taskm.find_latest_email_and_save_attachment()
+            be.find_latest_email_and_save_attachment()
   
     
 taskm = tm.TaskManagement()
