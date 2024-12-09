@@ -2,6 +2,7 @@ import pandas as pd
 from datetime import datetime, date, timedelta
 import sqlite3 as sq
 import re
+import backup_email as be
 
 
 # epic_df = pd.read_csv("data/epics.csv")
@@ -203,6 +204,10 @@ class TaskManagement:
         s_df.to_sql('stories', conn, if_exists='replace', index=False)
         t_df.to_sql('tasks', conn, if_exists='replace', index=False)
         conn.close()
+        be.send_email_with_attachment(
+            body='Please find the attached file.',
+            attachment_path='data/database.db'
+            )
     def get_current_sprint_id(self, type='id'):
         """
         Return the sprint_id from the DataFrame where today's date is between the start and end dates of the sprint.
