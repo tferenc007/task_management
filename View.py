@@ -54,7 +54,13 @@ class View():
             story_list = taskm.stories_squeeze(start_date, end_date)
             for story_name in story_list:
                 col = st.columns(2)
-                col[0].markdown(f'{story_name.name}')
+
+                tasks_names = [ task.name for task in story_name.tasks ]
+                tooltip = ", ".join(tasks_names)   
+                # tooltip = "list of tasks"
+                # col[0].markdown(f'<div title="{tooltip}">{story_name.name}</div>', unsafe_allow_html=True)
+
+                col[0].markdown(f'{story_name.name}',help=tooltip)
                 col[1].markdown(f'{story_name.task_count(True)}/{story_name.task_count()}')
     def export_db(self):
         # with open('data/database.db', 'rb') as f:
