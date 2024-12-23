@@ -27,13 +27,17 @@ class AddActivity():
         if 'header_success' not in st.session_state:
             st.session_state.header_success = False
 
-        if 'current_sprint_flag' not in st.session_state:
-            st.session_state.current_sprint_flag = True
+        if 'current_sprint_selected' not in st.session_state:
+            st.session_state.current_sprint_selected = self.tasktm.get_current_sprint_id()
 
         if st.session_state.header_success:
             st.success("Task has been completed")
             st.session_state.header_success = False
-        current_sprint_flag = st.checkbox("Current Sprint", value=st.session_state.current_sprint_flag)
+        sprint_lists = self.tasktm.dic_sprint.keys()
+        sprint_lists = list(sprint_lists)
+        sprint_lists.insert(0, "All")
+        st.session_state.current_sprint_selected = st.selectbox('Select Sprint', sprint_lists,index=self.tasktm.get_current_sprint_id('index')+1)
+
         e_cols = st.columns(len(self.tasktm.epics))
         
         if st.button('All Filters',use_container_width=True, key='all filters'):
@@ -45,11 +49,12 @@ class AddActivity():
                 st.session_state.epic_list = [e for e in st.session_state.epic_list if e == epic.id]
                 # self.is_button_clicked = True
         
-        if current_sprint_flag:
-            cs = tasktm.get_current_sprint_id()
-            stories = [story for story in self.tasktm.stories_squeeze() if story.epic_id in st.session_state.epic_list and story.sprint_id==cs]
-        else:
+        if st.session_state.current_sprint_selected=='All':
             stories = [story for story in self.tasktm.stories_squeeze() if story.epic_id in st.session_state.epic_list]
+        else:
+            stories = [story for story in self.tasktm.stories_squeeze() if story.epic_id in st.session_state.epic_list
+                       and story.sprint_id==st.session_state.current_sprint_selected]
+
         for story_frame in stories:
             with st.expander(story_frame.name, expanded=True):
                     st.write(story_frame.description)
