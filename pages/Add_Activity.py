@@ -115,6 +115,21 @@ class AddActivity():
                                     if tick_mark=='cancelled':
                                         st.write("❌")
                             task_vertical = True
+                    if st.button("(+)", key=f'add_task_button{story_frame.id}'):
+                        if st.session_state.button_clicked ==  f'add_task_button{story_frame.id}':
+                            st.session_state.button_clicked = ''
+                        else:
+                            st.session_state.button_clicked =  f'add_task_button{story_frame.id}'
+
+                    if st.session_state.button_clicked == f'add_task_button{story_frame.id}':
+                        task_name = st.text_input("Task Name", key=f'task_name{story_frame.id}')
+                        if st.button("Add Task", key=f'add_task_button_to_story{story_frame.id}'):
+                            new_task = tm.Task(df=self.tasktm.df_tasks)
+                            new_task.name = task_name
+                            self.tasktm.add_task(new_task, story_frame.id)
+                            st.session_state.button_clicked = ''
+                            st.rerun()
+                          
 
         # if not self.is_button_clicked:
         #     print(" clicked")

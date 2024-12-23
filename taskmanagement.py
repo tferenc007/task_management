@@ -130,7 +130,15 @@ class TaskManagement:
         return i
 
 
-    def add_task(self, task, epic_id, story_id):
+    def add_task(self, task, story_id):
+        new_task = task
+        new_task.story_id = story_id
+        for epic in self.epics:
+            for story in epic.stories:
+                if story.id == story_id:
+                    story.tasks.append(new_task)
+                    self.save()
+
         # create a new taskś
         pass
 
