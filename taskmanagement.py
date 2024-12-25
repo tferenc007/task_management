@@ -130,8 +130,9 @@ class TaskManagement:
         return i
 
 
-    def add_task(self, task, story_id):
-        new_task = task
+    def add_task(self, task_name, story_id):
+        new_task = Task(df=self.df_tasks)
+        new_task.name = task_name
         new_task.story_id = story_id
         for epic in self.epics:
             for story in epic.stories:
@@ -142,7 +143,19 @@ class TaskManagement:
         # create a new taskś
         pass
 
-    def add_story(self, story, epic_id):
+    def add_story(self, story_name, story_description, sprint_id, epic_id):
+        new_story = Story(df=self.df_stories)
+       
+        new_story.name = story_name
+        new_story.description = story_description
+        new_story.sprint_id = sprint_id
+        new_story.epic_id = epic_id
+
+        for epic in self.epics:
+            if epic.id == epic_id:
+                epic.stories.append(new_story)
+                # print("story added")
+                self.save()
         # create a new story
         pass
 
@@ -309,9 +322,6 @@ class Story:
         self._tasks = []
         self._name = None
         self._description = None
-        self._est_start_date = None
-        self._est_end_date = None
-        self._sprint_id = None
         self._story_index = ''
     @property
     def sprint_id(self):
@@ -320,6 +330,9 @@ class Story:
     @sprint_id.setter
     def sprint_id(self, value):
         self._sprint_id = value
+        tm = TaskManagement()
+        self._est_start_date = tm.dic_sprint[value]["sprint_start_date"]
+        self._est_end_date = tm.dic_sprint[value]["sprint_end_date"]
 
     @property
     def story_index(self):

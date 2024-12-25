@@ -49,6 +49,26 @@ class AddActivity():
                 st.session_state.epic_list = [e for e in st.session_state.epic_list if e == epic.id]
                 # self.is_button_clicked = True
         
+        if st.button("(*)", key='add_story_button'):
+            if st.session_state.button_clicked == 'Add new story':
+                st.session_state.button_clicked = ''
+            else:
+                st.session_state.button_clicked = 'Add new story'
+
+        if st.session_state.button_clicked == 'Add new story':
+            st.write("Add new story")
+            epic_selected = st.selectbox('Select Epic', [epic.name for epic in self.tasktm.epics])
+            story_name = st.text_input("Story Name")
+            story_description = st.text_area("Story Description")
+            epic_id = self.tasktm.epic_by_name(epic_selected).id
+            if st.button("Add Story"):
+                self.tasktm.add_story(story_name=story_name, story_description=story_description, sprint_id=st.session_state.current_sprint_selected
+                                        , epic_id=epic_id)
+                st.session_state.button_clicked = ''
+                st.rerun()
+
+  
+
         if st.session_state.current_sprint_selected=='All':
             stories = [story for story in self.tasktm.stories_squeeze() if story.epic_id in st.session_state.epic_list]
         else:
@@ -124,9 +144,7 @@ class AddActivity():
                     if st.session_state.button_clicked == f'add_task_button{story_frame.id}':
                         task_name = st.text_input("Task Name", key=f'task_name{story_frame.id}')
                         if st.button("Add Task", key=f'add_task_button_to_story{story_frame.id}'):
-                            new_task = tm.Task(df=self.tasktm.df_tasks)
-                            new_task.name = task_name
-                            self.tasktm.add_task(new_task, story_frame.id)
+                            self.tasktm.add_task(task_name, story_frame.id)
                             st.session_state.button_clicked = ''
                             st.rerun()
                           
