@@ -44,7 +44,7 @@ class View():
             task_completed = taskm.task_count(start_date, end_date,is_completed=True)
             coll_1 = st.columns(2)
             coll_2 = st.columns(2)
-            coll_1[0].markdown(f"Stories: ({story_all_sp} SP)")
+            coll_1[0].markdown(f"Stories:")
             coll_1[1].markdown(f"{story_completed}/{story_all} ({story_completed_sp}/{story_all_sp}  SP)")
             coll_2[0].markdown(f"Tasks")    
             coll_2[1].markdown(f"{task_completed}/{task_all}")    
@@ -62,7 +62,7 @@ class View():
                 # tooltip = "list of tasks"
                 # col[0].markdown(f'<div title="{tooltip}">{story_name.name}</div>', unsafe_allow_html=True)
 
-                col[0].markdown(f'{story_name.name}',help=tooltip)
+                col[0].markdown(f'({story_name.story_point}){story_name.name}',help=tooltip)
                 col[1].markdown(f'{story_name.task_count(True)}/{story_name.task_count()}')
     def export_db(self):
         # with open('data/database.db', 'rb') as f:
