@@ -143,13 +143,14 @@ class TaskManagement:
         # create a new taskś
         pass
 
-    def add_story(self, story_name, story_description, sprint_id, epic_id):
+    def add_story(self, story_name, story_description, sprint_id, epic_id, story_point):
         new_story = Story(df=self.df_stories)
        
         new_story.name = story_name
         new_story.description = story_description
         new_story.sprint_id = sprint_id
         new_story.epic_id = epic_id
+        new_story.story_point = story_point
 
         for epic in self.epics:
             if epic.id == epic_id:
@@ -209,7 +210,8 @@ class TaskManagement:
             epic_dic.append(dic)
             for story in epic.stories:
                 s_dic = {'epic_id': story.epic_id, 'id': story.id, 'name': story.name, 'description': story.description,
-                        'est_start_date': story.est_start_date, 'est_end_date': story.est_end_date, 'sprint_id': story.sprint_id}
+                        'est_start_date': story.est_start_date, 'est_end_date': story.est_end_date,
+                         'sprint_id': story.sprint_id, 'story_point': story.story_point}
                 story_dic.append(s_dic)
                 for task in story.tasks:
                     t_dic = {'story_id' : task.story_id, 'id': task.id, 'name': task.name,
@@ -322,7 +324,29 @@ class Story:
         self._tasks = []
         self._name = None
         self._description = None
+        self._story_point = None
         self._story_index = ''
+    @property
+    def story_point_index(self):
+        if self.story_point == "1":
+            return 0
+        elif self.story_point == "3":
+            return 1
+        elif self.story_point == "5":
+            return 2
+        elif self.story_point == "8":
+            return 3
+        elif self.story_point == "13":
+            return 4                
+        elif self.story_point == "21":
+            return 5
+    @property
+    def story_point(self):
+        return self._story_point    
+    @story_point.setter
+    def story_point(self, value):
+        self._story_point = value
+
     @property
     def sprint_id(self):
         return self._sprint_id
@@ -411,6 +435,7 @@ class Story:
                 self._est_start_date = story_df.loc[story_df["id"] == self.id, "est_start_date"].squeeze()
                 self._est_end_date = story_df.loc[story_df["id"] == self.id, "est_end_date"].squeeze()
                 self._sprint_id = story_df.loc[story_df["id"] == self.id, "sprint_id"].squeeze()
+                self._story_point = story_df.loc[story_df["id"] == self.id, "story_point"].squeeze()
                 return True
 
 

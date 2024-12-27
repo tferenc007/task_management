@@ -60,10 +60,11 @@ class AddActivity():
             epic_selected = st.selectbox('Select Epic', [epic.name for epic in self.tasktm.epics])
             story_name = st.text_input("Story Name")
             story_description = st.text_area("Story Description")
+            story_points = st.selectbox("Story Points", ["1",'3','5','8','13','21'])
             epic_id = self.tasktm.epic_by_name(epic_selected).id
             if st.button("Add Story"):
                 self.tasktm.add_story(story_name=story_name, story_description=story_description, sprint_id=st.session_state.current_sprint_selected
-                                        , epic_id=epic_id)
+                                        , epic_id=epic_id, story_point=story_points)
                 st.session_state.button_clicked = ''
                 st.rerun()
 

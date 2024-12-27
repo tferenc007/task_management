@@ -53,6 +53,7 @@ class Edit():
             story_description = st.text_input("Description")
             sprint_id = st.selectbox("Sprint", tasktm.dic_sprint.keys() )
             sprint_start_date = datetime.strptime(tasktm.dic_sprint[sprint_id]['sprint_start_date'], "%Y-%m-%d")
+            story_points = st.selectbox("Story Points",["1",'3','5','8','13','21'])
             sprint_end_date = datetime.strptime(tasktm.dic_sprint[sprint_id]['sprint_end_date'], "%Y-%m-%d")
             story_est_start_date = st.date_input("Est Start Date",value=sprint_start_date, disabled=True)
             story_est_end_date = st.date_input("Est End Date", value=sprint_end_date, disabled=True)
@@ -63,10 +64,10 @@ class Edit():
             
             story_name = st.text_input("Name",value=picked_story_obj.name)
             story_description = st.text_input("Description",value=picked_story_obj.description)
-            sprint_id = st.selectbox("Sprint", tasktm.dic_sprint.keys(), index=picked_story_obj.story_index)
+            sprint_id = st.selectbox("Sprint", tasktm.dic_sprint.keys(), index=picked_story_obj.sprint_index)
             sprint_start_date = datetime.strptime(tasktm.dic_sprint[sprint_id]['sprint_start_date'], "%Y-%m-%d")
             sprint_end_date = datetime.strptime(tasktm.dic_sprint[sprint_id]['sprint_end_date'], "%Y-%m-%d")
-            
+            story_points = st.selectbox("Story Points", ["1",'3','5','8','13','21'], index=picked_story_obj.story_point_index)
             story_est_start_date = st.date_input("Est Start Date",value=sprint_start_date, disabled=True)
             story_est_end_date = st.date_input("Est End Date", value=sprint_end_date, disabled=True)
             if st.button('Delete Story'):
@@ -90,6 +91,7 @@ class Edit():
                             new_story.est_start_date = str(story_est_start_date)
                             new_story.est_end_date = str(story_est_end_date)
                             new_story.sprint_id = str(sprint_id)
+                            new_story.story_point = str(story_points)
                             ep.stories.append(new_story)
                             tasktm.save()
                             break
