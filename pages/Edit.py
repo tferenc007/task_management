@@ -64,7 +64,7 @@ class Edit():
             
             story_name = st.text_input("Name",value=picked_story_obj.name)
             story_description = st.text_input("Description",value=picked_story_obj.description)
-            sprint_id = st.selectbox("Sprint", tasktm.dic_sprint.keys(), index=picked_story_obj.sprint_index)
+            sprint_id = st.selectbox("Sprint", tasktm.dic_sprint.keys(), index=picked_story_obj.story_index)
             sprint_start_date = datetime.strptime(tasktm.dic_sprint[sprint_id]['sprint_start_date'], "%Y-%m-%d")
             sprint_end_date = datetime.strptime(tasktm.dic_sprint[sprint_id]['sprint_end_date'], "%Y-%m-%d")
             story_points = st.selectbox("Story Points", ["1",'3','5','8','13','21'], index=picked_story_obj.story_point_index)
