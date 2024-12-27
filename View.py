@@ -37,13 +37,15 @@ class View():
         with st.container(border=True):
             st.markdown(f"<h5 style='text-align: center;'>From {start_date} To {end_date}</h5>", unsafe_allow_html=True)    
             story_all = taskm.story_count(start_date, end_date)
-            story_completed = taskm.story_count(start_date, end_date,is_completed=True)
+            story_all_sp = taskm.story_count(start_date, end_date, story_point=True)
+            story_completed = taskm.story_count(start_date, end_date, is_completed=True)
+            story_completed_sp = taskm.story_count(start_date, end_date, is_completed=True, story_point=True)
             task_all = taskm.task_count(start_date, end_date)
             task_completed = taskm.task_count(start_date, end_date,is_completed=True)
             coll_1 = st.columns(2)
             coll_2 = st.columns(2)
-            coll_1[0].markdown(f"Stories:")
-            coll_1[1].markdown(f"{story_completed}/{story_all}")
+            coll_1[0].markdown(f"Stories: ({story_all_sp} SP)")
+            coll_1[1].markdown(f"{story_completed}/{story_all} ({story_completed_sp}/{story_all_sp}  SP)")
             coll_2[0].markdown(f"Tasks")    
             coll_2[1].markdown(f"{task_completed}/{task_all}")    
 

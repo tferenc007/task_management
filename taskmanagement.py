@@ -117,9 +117,15 @@ class TaskManagement:
         return l_activity
     
 
-    def story_count(self,  est_start_date=date(1900,1,1), est_end_date=date(2999,1,1), is_completed=None):
+    def story_count(self,  est_start_date=date(1900,1,1), est_end_date=date(2999,1,1), is_completed=None, story_point=False):
         stories = self.stories_squeeze(est_start_date=est_start_date, est_end_date=est_end_date, is_completed=is_completed)
-        return len(stories)
+        if story_point ==False:
+            return len(stories)
+        else:
+            i = 0
+            for story in stories:
+                i = i + int(story.story_point)
+            return i
     
 
     def task_count(self,  est_start_date=date(1900,1,1), est_end_date=date(2999,1,1), is_completed=None):
