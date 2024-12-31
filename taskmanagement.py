@@ -474,7 +474,7 @@ class Task:
         self._story_id = None
         self._name = task_name
         self._description = task_desc
-        self._is_completed = None
+        self._is_completed = 'false'
         self._complitation_date = None
         self._is_cancelled = 'false'
     @property
