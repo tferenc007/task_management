@@ -184,6 +184,7 @@ class Edit():
                                         new_task.name = task_name
                                         new_task.story_id = str(st_id)
                                         new_task.description = task_description
+                                        new_task.estimate_date = task_estimation_date
                                         if task_is_completed:
                                             new_task.complitation_date = str(task_complitation_date)
                                         else:
