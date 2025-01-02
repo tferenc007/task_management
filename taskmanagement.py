@@ -140,6 +140,7 @@ class TaskManagement:
         new_task = Task(df=self.df_tasks, est_date=est_dat)
         new_task.name = task_name
         new_task.story_id = story_id
+        print (str(new_task.estimate_date))
         for epic in self.epics:
             for story in epic.stories:
                 if story.id == story_id:
@@ -223,7 +224,7 @@ class TaskManagement:
                     t_dic = {'story_id' : task.story_id, 'id': task.id, 'name': task.name,
                              'description': task.description, 'is_completed': task._is_completed,
                              'complitation_date': task.complitation_date, 'is_cancelled': task.is_cancelled,
-                             'estimate_date': task.estimate_date}
+                             'estimate_date': str(task.estimate_date)}
                     task_dic.append(t_dic)
         e_df = pd.DataFrame(epic_dic)
         s_df = pd.DataFrame(story_dic)
@@ -238,6 +239,8 @@ class TaskManagement:
             body='Please find the attached file.',
             attachment_path='data/database.db'
             )
+        
+        
     def get_current_sprint_id(self, type='id'):
         """
         Return the sprint_id from the DataFrame where today's date is between the start and end dates of the sprint.

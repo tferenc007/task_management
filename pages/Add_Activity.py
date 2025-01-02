@@ -163,8 +163,6 @@ class AddActivity():
             with st.container(border=True):
                 today = datetime.today().date()
                 est_date =task.estimate_date
-                if est_date =='false':
-                    est_date = "No Estimate Date"
                 st.text(f"Estimate Date: {est_date}")
                 task_complete_date = st.date_input("Date", key=f'task_date{task.id}', max_value=today)
                 # print(f'task_date{task.id}')
