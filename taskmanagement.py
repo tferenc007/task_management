@@ -222,7 +222,8 @@ class TaskManagement:
                 for task in story.tasks:
                     t_dic = {'story_id' : task.story_id, 'id': task.id, 'name': task.name,
                              'description': task.description, 'is_completed': task._is_completed,
-                             'complitation_date': task.complitation_date, 'is_cancelled': task.is_cancelled}
+                             'complitation_date': task.complitation_date, 'is_cancelled': task.is_cancelled,
+                             'estimate_date': task.estimate_date}
                     task_dic.append(t_dic)
         e_df = pd.DataFrame(epic_dic)
         s_df = pd.DataFrame(story_dic)
@@ -465,7 +466,7 @@ class Story:
         return i
 
 class Task:
-    def __init__(self,task_id=None, task_name=None, task_desc=None, df=None):
+    def __init__(self,task_id=None, task_name=None, task_desc=None, df=None, est_date='false'):
         if task_id == None:
             df['id'] = df['id'].astype(int)
             self._id = str(df['id'].max()+1)
@@ -477,6 +478,15 @@ class Task:
         self._is_completed = 'false'
         self._complitation_date = None
         self._is_cancelled = 'false'
+        self._estimate_date = est_date
+    @property
+    def estimate_date(self):
+        return self._estimate_date
+    
+    @estimate_date.setter
+    def estimate_date(self, value):
+        self._estimate_date = value
+    
     @property
     def story_id(self):
         return self._story_id
