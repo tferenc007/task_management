@@ -144,8 +144,9 @@ class AddActivity():
 
                     if st.session_state.button_clicked == f'add_task_button{story_frame.id}':
                         task_name = st.text_input("Task Name", key=f'task_name{story_frame.id}')
+                        task_est = st.date_input("Estimate Date", key=f'task_estimate{story_frame.id}', value=None)
                         if st.button("Add Task", key=f'add_task_button_to_story{story_frame.id}'):
-                            self.tasktm.add_task(task_name, story_frame.id)
+                            self.tasktm.add_task(task_name, story_frame.id, task_est)
                             st.session_state.button_clicked = ''
                             st.rerun()
                           
@@ -161,7 +162,11 @@ class AddActivity():
             task = st.session_state.task
             with st.container(border=True):
                 today = datetime.today().date()
-                task_complete_date = st.date_input("date", key=f'task_date{task.id}', max_value=today)
+                est_date =task.estimate_date
+                if est_date =='false':
+                    est_date = "No Estimate Date"
+                st.text(f"Estimate Date: {est_date}")
+                task_complete_date = st.date_input("Date", key=f'task_date{task.id}', max_value=today)
                 # print(f'task_date{task.id}')
                 if st.button("Complete Task", key=f'task_complete_button{task.id}') and task_complete_date <= today:
                     self.tasktm.complete_task(task, task_complete_date)

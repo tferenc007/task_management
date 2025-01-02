@@ -135,6 +135,7 @@ class Edit():
 
             if picked_task=='Add new task':
                 task_name = st.text_input("Task Name")
+                task_estimation_date = st.date_input("Estimate Date", value=None)
                 task_description  = st.text_input("Desclription ")
                 task_is_completed = st.checkbox("Is completed", value=False)
                 if task_is_completed:
@@ -144,6 +145,7 @@ class Edit():
             else:
                 picked_task_obj =   [task for task in st_.tasks if task.name == picked_task][0]
                 task_name = st.text_input("Task Name", value=picked_task_obj.name)
+                task_estimation_date = st.date_input("Estimate Date", value=picked_task_obj.estimate_date)
                 task_description  = st.text_input("Desclription", value=picked_task_obj.description )
                 if picked_task_obj.is_completed=='true':
                     complitation_date = datetime.strptime(picked_task_obj.complitation_date, "%Y-%m-%d")

@@ -136,8 +136,8 @@ class TaskManagement:
         return i
 
 
-    def add_task(self, task_name, story_id):
-        new_task = Task(df=self.df_tasks)
+    def add_task(self, task_name, story_id, est_dat):
+        new_task = Task(df=self.df_tasks, est_date=est_dat)
         new_task.name = task_name
         new_task.story_id = story_id
         for epic in self.epics:
@@ -466,7 +466,7 @@ class Story:
         return i
 
 class Task:
-    def __init__(self,task_id=None, task_name=None, task_desc=None, df=None, est_date='false'):
+    def __init__(self,task_id=None, task_name=None, task_desc=None, df=None, est_date=None):
         if task_id == None:
             df['id'] = df['id'].astype(int)
             self._id = str(df['id'].max()+1)
@@ -482,7 +482,7 @@ class Task:
     @property
     def estimate_date(self):
         return self._estimate_date
-    
+
     @estimate_date.setter
     def estimate_date(self, value):
         self._estimate_date = value
