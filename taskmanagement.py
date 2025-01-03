@@ -207,9 +207,13 @@ class TaskManagement:
     def epic_by_name(self, epic_name):
         return [epic for epic in self.epics if epic.name == epic_name][0]
     
-    def story_by_name(self, story_name, epic_name):
-        ep = [epic for epic in self.epics if epic.name == epic_name][0]
-        return [story for story in ep.stories if story.name == story_name][0]
+    def story_by_name(self, story_name, epic_name=None):
+        if epic_name==None:
+            stories = self.stories_squeeze()
+            return [story for story in stories if story.name == story_name][0]
+        else:
+            ep = [epic for epic in self.epics if epic.name == epic_name][0]
+            return [story for story in ep.stories if story.name == story_name][0]
         
     def save(self):
 
