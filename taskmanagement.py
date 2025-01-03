@@ -136,10 +136,11 @@ class TaskManagement:
         return i
 
 
-    def add_task(self, task_name, story_id, est_dat):
+    def add_task(self, task_name, story_id, est_dat, task_desc=None):
         new_task = Task(df=self.df_tasks, est_date=est_dat)
         new_task.name = task_name
         new_task.story_id = story_id
+        new_task.description = task_desc
         for epic in self.epics:
             for story in epic.stories:
                 if story.id == story_id:
@@ -177,14 +178,19 @@ class TaskManagement:
             epic_list = [epic.id for epic in self.epics]
         return epic_list
     
-    def stories_to_list(self, field_name, epic_id):
-        
-        ep = [epic for epic in self.epics if epic.id == epic_id][0]
-
-        if field_name == 'name':
-            story_list = [story.name for story in ep.stories]
-        elif field_name == 'id':
-            story_list = [story.id for story in ep.stories]
+    def stories_to_list(self, field_name, epic_id=None):
+        if epic_id == None:
+            all_stories = self.stories_squeeze()
+            if field_name == 'name':
+                story_list = [story.name for story in all_stories]
+            elif field_name == 'id':
+                story_list = [story.id for story in all_stories]
+        else:
+            ep = [epic for epic in self.epics if epic.id == epic_id][0]
+            if field_name == 'name':
+                story_list = [story.name for story in ep.stories]
+            elif field_name == 'id':
+                story_list = [story.id for story in ep.stories]
         return story_list
     def tasks_to_list(self, field_name, story_id):
         

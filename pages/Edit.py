@@ -11,14 +11,15 @@ class Edit():
         self.tasktm = tasktm
         st.markdown("<h1 style='text-align: center;'>Add/Edit</h1>", unsafe_allow_html=True)
 
+        epic_list = tasktm.epics_to_list('name')
+        selected_epic = st.selectbox("Select Epic",epic_list)
 
-        selected_epic = st.selectbox("Select Epic",tasktm.epics_to_list('name'))
         epic_col = st.columns([0.02, 0.98])
 
         with epic_col[1].expander("Edit Epic"):
-            new_epic_name = self.edit_epic(selected_epic)
+            new_epic_name = self.edit_epic()
         with epic_col[1].expander("Add/Edit New Story"):
-            self.add_new_story(selected_epic)
+            self.add_new_story()
 
         story_col = st.columns([0.02, 0.98]) 
 
@@ -28,7 +29,8 @@ class Edit():
 
        
 
-    def edit_epic(self, selected_epic):       
+    def edit_epic(self):
+        selected_epic = st.selectbox("Select Epic",self.tasktm.epics_to_list('name'), key='edit_epic')       
         new_epic_name = st.text_input("Name",value=selected_epic)
         if st.button("Save Epic"):
 
@@ -42,11 +44,21 @@ class Edit():
                         st.rerun()
 
 
-    def add_new_story(self, selected_epic):
-        ep = tasktm.epic_by_name(selected_epic)
-        ep_id = ep.id
-        story_list = tasktm.stories_to_list('name',ep_id)
+    def add_new_story(self):
+        epic_list = tasktm.epics_to_list('name')
+        epic_list.insert(0,'All Epics')
+
+        selected_epic = st.selectbox("Select Epic",epic_list, key='edit_story')
+        if selected_epic!='All Epics':
+
+            ep = tasktm.epic_by_name(selected_epic)
+            ep_id = ep.id
+            story_list = tasktm.stories_to_list('name',ep_id)
+    
+        else:
+            story_list = tasktm.stories_to_list('name')       
         story_list.insert(0,'Add new story')
+      
         picked_story = st.selectbox("Pick the story",story_list) 
         if picked_story=='Add new story':
             story_name = st.text_input("Name")
@@ -58,7 +70,8 @@ class Edit():
             story_est_start_date = st.date_input("Est Start Date",value=sprint_start_date, disabled=True)
             story_est_end_date = st.date_input("Est End Date", value=sprint_end_date, disabled=True)
         else:
-            picked_story_obj =   [story for story in ep.stories if story.name == picked_story][0]
+            picked_story_obj =  [story for story in tasktm.stories_squeeze() if story.name == picked_story][0]
+            # [story for story in ep.stories if story.name == picked_story][0]
             st_id = picked_story_obj.id
 
             
