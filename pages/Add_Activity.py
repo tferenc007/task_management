@@ -162,7 +162,8 @@ class AddActivity():
             task = st.session_state.task
             with st.container(border=True):
                 today = datetime.today().date()
-                est_date =task.estimate_date
+                # print(task.estimate_date)
+                est_date =str(task.estimate_date)
                 st.text(f"Estimate Date: {est_date}")
                 task_complete_date = st.date_input("Date", key=f'task_date{task.id}', max_value=today)
                 # print(f'task_date{task.id}')

@@ -179,12 +179,13 @@ class Edit():
                             if ep.id == ep_id:
                                 for sto in ep.stories:
                                     if sto.id==st_id:
+
                                         new_task = tm.Task(df=tasktm.df_tasks)
 
                                         new_task.name = task_name
                                         new_task.story_id = str(st_id)
                                         new_task.description = task_description
-                                        new_task.estimate_date = task_estimation_date
+                                        new_task.estimate_date = str(task_estimation_date)
                                         if task_is_completed:
                                             new_task.complitation_date = str(task_complitation_date)
                                         else:
@@ -208,6 +209,7 @@ class Edit():
                                                 tas.name = task_name
                                                 tas.story_id = str(st_id)
                                                 tas.description = task_description
+                                                tas.estimate_date = str(task_estimation_date)
                                                 if task_is_completed:
                                                     tas.complitation_date = str(task_complitation_date)
                                                 else:

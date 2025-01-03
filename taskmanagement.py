@@ -140,7 +140,6 @@ class TaskManagement:
         new_task = Task(df=self.df_tasks, est_date=est_dat)
         new_task.name = task_name
         new_task.story_id = story_id
-        print (str(new_task.estimate_date))
         for epic in self.epics:
             for story in epic.stories:
                 if story.id == story_id:
@@ -225,6 +224,8 @@ class TaskManagement:
                              'description': task.description, 'is_completed': task._is_completed,
                              'complitation_date': task.complitation_date, 'is_cancelled': task.is_cancelled,
                              'estimate_date': str(task.estimate_date)}
+                    # if task.name=='Take a Ride 2':
+                    #     print(str(task.estimate_date))
                     task_dic.append(t_dic)
         e_df = pd.DataFrame(epic_dic)
         s_df = pd.DataFrame(story_dic)
@@ -481,14 +482,24 @@ class Task:
         self._is_completed = 'false'
         self._complitation_date = None
         self._is_cancelled = 'false'
-        self._estimate_date = est_date
+        if isinstance(est_date, str):
+            if str(est_date)=='None':
+                self._estimate_date = None
+            else:
+                self._estimate_date =  datetime.strptime(est_date, '%Y-%m-%d').date()
+        else:
+            self._estimate_date = est_date
+
     @property
     def estimate_date(self):
         return self._estimate_date
 
     @estimate_date.setter
     def estimate_date(self, value):
-        self._estimate_date = value
+        if str(value)== 'None':
+            self._estimate_date = None
+        elif isinstance(value, str):
+            self._estimate_date = datetime.strptime(value, '%Y-%m-%d').date()
     
     @property
     def story_id(self):
@@ -552,7 +563,7 @@ class Task:
                 self._is_completed = df.loc[df["id"] == self.id, "is_completed"].squeeze()
                 self._is_cancelled = df.loc[df["id"] == self.id, "is_cancelled"].squeeze()
                 self._complitation_date = df.loc[df["id"] == self.id, "complitation_date"].squeeze()
-
+                self.estimate_date = df.loc[df["id"] == self.id, "estimate_date"].squeeze()
 
 
 if __name__ =='__main__':
