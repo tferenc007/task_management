@@ -75,8 +75,13 @@ class AddActivity():
         else:
             stories = [story for story in self.tasktm.stories_squeeze() if story.epic_id in st.session_state.epic_list
                        and story.sprint_id==st.session_state.current_sprint_selected]
+        if 'story_frame_status' not in st.session_state:
+            st.session_state.story_frame_status = {}
+            for story in stories:
+                st.session_state.story_frame_status[f"frame_key_{story.id}"] = False
 
         for story_frame in stories:
+            frame_bool = st.session_state.story_frame_status[f"frame_key_{story_frame.id}"]
             with st.expander(story_frame.name, expanded=False):
                     st.write(story_frame.description)
                     s_col1,empty_col, s_col2 = st.columns([1.5, 0.5, 1.5],)
