@@ -77,7 +77,7 @@ class AddActivity():
                        and story.sprint_id==st.session_state.current_sprint_selected]
 
         for story_frame in stories:
-            with st.expander(story_frame.name, expanded=True):
+            with st.expander(story_frame.name, expanded=False):
                     st.write(story_frame.description)
                     s_col1,empty_col, s_col2 = st.columns([1.5, 0.5, 1.5],)
                     task_vertical = True
