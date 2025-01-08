@@ -3,6 +3,7 @@ from datetime import datetime, date, timedelta
 import sqlite3 as sq
 import re
 import backup_email as be
+import os
 
 
 # epic_df = pd.read_csv("data/epics.csv")
@@ -72,7 +73,10 @@ class TaskManagement:
                         self.save()
                         
     def objective_id_by_name(self, objective_name):
-        return self.objectives_df.loc[self.objectives_df['objective_name']==objective_name, 'objective_id'].squeeze()
+        if objective_name == 'No objective':
+            return '0'
+        else:
+            return str(self.objectives_df.loc[self.objectives_df['objective_name']==objective_name, 'objective_id'].squeeze())
     
     def tasks_squeeze(self, start_date=date(1900,1,1), end_date=date(2999,1,1), show_all=False):
         squeezed_tasks =[]
@@ -263,10 +267,14 @@ class TaskManagement:
         s_df.to_sql('stories', conn, if_exists='replace', index=False)
         t_df.to_sql('tasks', conn, if_exists='replace', index=False)
         conn.close()
-        be.send_email_with_attachment(
-            body='Please find the attached file.',
-            attachment_path='data/database.db'
-            )
+        
+        if os.path.isfile('local.txt'):
+            print("backap is not implemented")
+        else:
+            be.send_email_with_attachment(
+                body='Please find the attached file.',
+                attachment_path='data/database.db'
+                )
     
     def get_pi_end_date(self, pi_id):
         max_date = None
@@ -648,8 +656,11 @@ if __name__ =='__main__':
 
 
     # print(tasks_df)
-    tm = TaskManagement()
-    print(tm.epic_id_by_name("Sport/Health"))
+    tasktm = TaskManagement()
+    objective_list = tasktm.objectives_to_list('name')
+    objective_list.insert(0, 'No objective')
+    name = 'No objective'
+    print(tasktm.objective_id_by_name(name))
     
 
     # print(tm.story_count())

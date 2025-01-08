@@ -67,7 +67,7 @@ class AddActivity():
             objective_id = st.selectbox("Objective", objective_list)
             if st.button("Add Story"):
                 self.tasktm.add_story(story_name=story_name, story_description=story_description, sprint_id=st.session_state.current_sprint_selected
-                                        , epic_id=epic_id, story_point=story_points)
+                                        , epic_id=epic_id, story_point=story_points, objective_id=tasktm.objective_id_by_name(objective_id))
                 st.session_state.button_clicked = ''
                 st.rerun()
 

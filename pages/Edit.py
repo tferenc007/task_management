@@ -85,7 +85,7 @@ class Edit():
             story_est_end_date = st.date_input("Est End Date", value=sprint_end_date, disabled=True)
             objective_list = tasktm.objectives_to_list('name')
             objective_list.insert(0, 'No objective')
-            objective_id = st.selectbox("Objective", objective_list, index=0)
+            objective_id = st.selectbox("Objective", objective_list, index=int(picked_story_obj.objective_id))
             if objective_id=='No objective':
                 objective_id = '0'
             if st.button('Delete Story'):
@@ -110,7 +110,7 @@ class Edit():
                             new_story.est_end_date = str(story_est_end_date)
                             new_story.sprint_id = str(sprint_id)
                             new_story.story_point = str(story_points)
-                            new_story.objective_id = str(objective_id)
+                            new_story.objective_id = tasktm.objective_id_by_name(objective_id)
                             ep.stories.append(new_story)
                             tasktm.save()
                             break
