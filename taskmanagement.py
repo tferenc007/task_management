@@ -23,7 +23,7 @@ class TaskManagement:
         self.epic_df = pd.read_sql_query("SELECT * FROM epics", conn, dtype=str)
         self.stories_df = pd.read_sql_query("SELECT * FROM stories", conn, dtype=str)
         self.tasks_df = pd.read_sql_query("SELECT * FROM tasks", conn, dtype=str)
-        self.sprint_dic = self.__create_sprint_dataframe(sprint_days=14, start_date='2024-11-18',sprint_number=100)
+        self.sprint_dic = self.__create_sprint_dataframe(sprint_days=14, start_date='2024-12-30',sprint_number=100)
         conn.close()
         
         epic_ids = self.epic_df["id"].tolist()
@@ -250,8 +250,31 @@ class TaskManagement:
             body='Please find the attached file.',
             attachment_path='data/database.db'
             )
-        
-        
+    
+    def get_pi_end_date(self, pi_id):
+        max_date = None
+        for sprint, values in self.dic_sprint.items():
+            if values["pi_id"] == pi_id:
+                if max_date == None:
+                    max_date = datetime.strptime( values['sprint_end_date'], "%Y-%m-%d").date()
+                else:
+                    if max_date < datetime.strptime( values['sprint_end_date'], "%Y-%m-%d").date():
+                        max_date = datetime.strptime( values['sprint_end_date'], "%Y-%m-%d").date()        
+        return str(max_date)
+    
+    
+    def get_pi_start_date(self, pi_id):
+        min_date = None
+        for sprint, values in self.dic_sprint.items():
+            if values["pi_id"] == pi_id:
+                if min_date == None:
+                    min_date = datetime.strptime( values['sprint_start_date'], "%Y-%m-%d").date()
+                else:
+                    if min_date > datetime.strptime( values['sprint_start_date'], "%Y-%m-%d").date():
+                        min_date = datetime.strptime( values['sprint_start_date'], "%Y-%m-%d").date()        
+        return str(min_date)
+    
+
     def get_current_sprint_id(self, type='id'):
         """
         Return the sprint_id from the DataFrame where today's date is between the start and end dates of the sprint.
@@ -272,6 +295,8 @@ class TaskManagement:
                     match = re.search(r'\b\d+\b', sprint_id)
                     if match:
                         return int(match.group())-1
+                elif type=='pi_id':
+                    return dates("pi_id")
         
         return None
     def __create_sprint_dataframe(self, sprint_days,start_date, sprint_number ):
@@ -287,7 +312,9 @@ class TaskManagement:
             sprint_data.append({
                 'sprint_id': f"Sprint {sprint_number}",
                 'sprint_start_date': start_date.strftime('%Y-%m-%d'),
-                'sprint_end_date': end_date.strftime('%Y-%m-%d')
+                'sprint_end_date': end_date.strftime('%Y-%m-%d'),
+                'pi_id': f"PI {sprint_number//5 + 1}"
+
             })
             # Update the start date for the next sprint
             start_date = end_date + timedelta(days=1)

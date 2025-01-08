@@ -11,9 +11,6 @@ class Edit():
         self.tasktm = tasktm
         st.markdown("<h1 style='text-align: center;'>Add/Edit</h1>", unsafe_allow_html=True)
 
-        epic_list = tasktm.epics_to_list('name')
-        selected_epic = st.selectbox("Select Epic",epic_list)
-
         epic_col = st.columns([0.02, 0.98])
 
         with epic_col[1].expander("Edit Epic"):

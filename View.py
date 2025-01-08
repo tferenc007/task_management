@@ -18,12 +18,27 @@ class View():
         st.selectbox("Select View",["Current"])
         with st.sidebar:
             self.export_db()
-        sprint_id = st.selectbox('Select Sprint', taskm.dic_sprint.keys(),index=taskm.get_current_sprint_id('index'))
-        current_sprint_start = taskm.dic_sprint[sprint_id]["sprint_start_date"]
-        current_sprint_start= datetime.datetime.strptime(current_sprint_start, "%Y-%m-%d")
+        if st.checkbox("PI View",value=False):
+            unique_pi_ids = [details['pi_id'] for details in  taskm.dic_sprint.values()]
+            unique_pi_ids = list(set(unique_pi_ids))
+            unique_pi_ids = [[value, value.split()[1]] for value in  unique_pi_ids]
+            sorted_unique_pi_ids = sorted(unique_pi_ids, key= lambda x: int(x[1]))
+            sorted_unique_pi_ids = [value[0] for value in sorted_unique_pi_ids]
+            sprint_id = st.selectbox('Select PI', sorted_unique_pi_ids)
+            current_sprint_start = taskm.get_pi_start_date(sprint_id)
+            current_sprint_start= datetime.datetime.strptime(current_sprint_start, "%Y-%m-%d")
 
-        current_sprint_end = taskm.dic_sprint[sprint_id]["sprint_end_date"]
-        current_sprint_end= datetime.datetime.strptime(current_sprint_end, "%Y-%m-%d")
+            current_sprint_end = taskm.get_pi_end_date(sprint_id)
+            current_sprint_end= datetime.datetime.strptime(current_sprint_end, "%Y-%m-%d")
+
+        else:
+            sprint_id = st.selectbox('Select Sprint', taskm.dic_sprint.keys(),index=taskm.get_current_sprint_id('index'))
+
+            current_sprint_start = taskm.dic_sprint[sprint_id]["sprint_start_date"]
+            current_sprint_start= datetime.datetime.strptime(current_sprint_start, "%Y-%m-%d")
+
+            current_sprint_end = taskm.dic_sprint[sprint_id]["sprint_end_date"]
+            current_sprint_end= datetime.datetime.strptime(current_sprint_end, "%Y-%m-%d")
 
         start_date = current_sprint_start.date()
         end_date = current_sprint_end.date()
@@ -74,6 +89,8 @@ class View():
         # )
         if st.button("Synch database"):
             be.find_latest_email_and_save_attachment()
+    def extract_number(pi_id):
+        return int(pi_id.split()[1])
   
     
 taskm = tm.TaskManagement()
