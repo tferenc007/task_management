@@ -62,6 +62,9 @@ class AddActivity():
             story_description = st.text_area("Story Description")
             story_points = st.selectbox("Story Points", ["1",'3','5','8','13','21'])
             epic_id = self.tasktm.epic_by_name(epic_selected).id
+            objective_list = tasktm.objectives_to_list('name')
+            objective_list.insert(0, 'No objective')
+            objective_id = st.selectbox("Objective", objective_list)
             if st.button("Add Story"):
                 self.tasktm.add_story(story_name=story_name, story_description=story_description, sprint_id=st.session_state.current_sprint_selected
                                         , epic_id=epic_id, story_point=story_points)
@@ -81,7 +84,7 @@ class AddActivity():
                 st.session_state.story_frame_status[f"frame_key_{story.id}"] = False
 
         for story_frame in stories:
-            frame_bool = st.session_state.story_frame_status[f"frame_key_{story_frame.id}"]
+            # frame_bool = st.session_state.story_frame_status[f"frame_key_{story_frame.id}"]
             with st.expander(story_frame.name, expanded=False):
                     st.write(story_frame.description)
                     s_col1,empty_col, s_col2 = st.columns([1.5, 0.5, 1.5],)

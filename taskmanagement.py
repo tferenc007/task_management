@@ -23,7 +23,8 @@ class TaskManagement:
         self.epic_df = pd.read_sql_query("SELECT * FROM epics", conn, dtype=str)
         self.stories_df = pd.read_sql_query("SELECT * FROM stories", conn, dtype=str)
         self.tasks_df = pd.read_sql_query("SELECT * FROM tasks", conn, dtype=str)
-        self.sprint_dic = self.__create_sprint_dataframe(sprint_days=14, start_date='2024-12-30',sprint_number=100)
+        self.objectives_df = pd.read_sql_query("SELECT * FROM objectives", conn, dtype=str)
+        self.sprint_dic = self.__create_sprint_dataframe(sprint_days=14, start_date='2024-11-18',sprint_number=100)
         conn.close()
         
         epic_ids = self.epic_df["id"].tolist()
@@ -48,6 +49,9 @@ class TaskManagement:
     def df_tasks(self):
         return self.tasks_df
     @property
+    def df_objectives(self):
+        return self.objectives_df
+    @property
     def epics(self):
         return self._epics
     def complete_task(self, task_completed, date):
@@ -67,7 +71,9 @@ class TaskManagement:
                         task.is_cancelled = 'true'
                         self.save()
                         
-
+    def objective_id_by_name(self, objective_name):
+        return self.objectives_df.loc[self.objectives_df['objective_name']==objective_name, 'objective_id'].squeeze()
+    
     def tasks_squeeze(self, start_date=date(1900,1,1), end_date=date(2999,1,1), show_all=False):
         squeezed_tasks =[]
         for epic in self.epics:
@@ -150,7 +156,7 @@ class TaskManagement:
         # create a new taskś
         pass
 
-    def add_story(self, story_name, story_description, sprint_id, epic_id, story_point):
+    def add_story(self, story_name, story_description, sprint_id, epic_id, story_point, objective_id ='0'):
         new_story = Story(df=self.df_stories)
        
         new_story.name = story_name
@@ -158,6 +164,7 @@ class TaskManagement:
         new_story.sprint_id = sprint_id
         new_story.epic_id = epic_id
         new_story.story_point = story_point
+        new_story.objective_id = objective_id
 
         for epic in self.epics:
             if epic.id == epic_id:
@@ -178,6 +185,15 @@ class TaskManagement:
             epic_list = [epic.id for epic in self.epics]
         return epic_list
     
+    def objectives_to_list(self, field_name):
+        if field_name == 'name':
+            objective_list = [objective for objective in self.df_objectives['objective_name']]
+        elif field_name == 'id':
+            objective_list = [objective for objective in self.df_objectives['objective_id']]
+
+        return objective_list
+    
+
     def stories_to_list(self, field_name, epic_id=None):
         if epic_id == None:
             all_stories = self.stories_squeeze()
@@ -227,7 +243,8 @@ class TaskManagement:
             for story in epic.stories:
                 s_dic = {'epic_id': story.epic_id, 'id': story.id, 'name': story.name, 'description': story.description,
                         'est_start_date': story.est_start_date, 'est_end_date': story.est_end_date,
-                         'sprint_id': story.sprint_id, 'story_point': story.story_point}
+                         'sprint_id': story.sprint_id, 'story_point': story.story_point,
+                         'objective_id': story.objective_id}
                 story_dic.append(s_dic)
                 for task in story.tasks:
                     t_dic = {'story_id' : task.story_id, 'id': task.id, 'name': task.name,
@@ -309,11 +326,15 @@ class TaskManagement:
         # Loop to create data for 10 sprints
         for sprint_number in range(1, sprint_number):
             end_date = start_date + timedelta(days=sprint_days - 1)
+            if sprint_number<4:
+                pi_adj = f"PI 0"
+            else:
+                pi_adj = f"PI {sprint_number//5 + 1}"
             sprint_data.append({
                 'sprint_id': f"Sprint {sprint_number}",
                 'sprint_start_date': start_date.strftime('%Y-%m-%d'),
                 'sprint_end_date': end_date.strftime('%Y-%m-%d'),
-                'pi_id': f"PI {sprint_number//5 + 1}"
+                'pi_id': pi_adj
 
             })
             # Update the start date for the next sprint
@@ -373,6 +394,7 @@ class Story:
         self._name = None
         self._description = None
         self._story_point = None
+        self._objective_id = '0'
         self._story_index = ''
     @property
     def story_point_index(self):
@@ -394,6 +416,12 @@ class Story:
     @story_point.setter
     def story_point(self, value):
         self._story_point = value
+    @property
+    def objective_id(self):
+        return self._objective_id    
+    @objective_id.setter
+    def objective_id(self, value):
+        self._objective_id = value
 
     @property
     def sprint_id(self):
@@ -484,6 +512,7 @@ class Story:
                 self._est_end_date = story_df.loc[story_df["id"] == self.id, "est_end_date"].squeeze()
                 self._sprint_id = story_df.loc[story_df["id"] == self.id, "sprint_id"].squeeze()
                 self._story_point = story_df.loc[story_df["id"] == self.id, "story_point"].squeeze()
+                self._objective_id = story_df.loc[story_df["id"] == self.id, "objective_id"].squeeze()
                 return True
 
 
