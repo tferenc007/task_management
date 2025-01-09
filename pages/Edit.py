@@ -44,7 +44,7 @@ class Edit():
     def add_new_story(self):
         epic_list = tasktm.epics_to_list('name')
         epic_list.insert(0,'All Epics')
-
+        ep_id = None
         selected_epic = st.selectbox("Select Epic",epic_list, key='edit_story')
         if selected_epic!='All Epics':
 
