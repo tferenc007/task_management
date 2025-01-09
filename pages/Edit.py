@@ -73,6 +73,7 @@ class Edit():
             picked_story_obj =  [story for story in tasktm.stories_squeeze() if story.name == picked_story][0]
             # [story for story in ep.stories if story.name == picked_story][0]
             st_id = picked_story_obj.id
+            ep_id = picked_story_obj.epic_id
 
             
             story_name = st.text_input("Name",value=picked_story_obj.name)
@@ -125,6 +126,7 @@ class Edit():
                                     sto.est_end_date = picked_story_obj.est_end_date
                                     sto.description = story_description
                                     sto.sprint_id = str(sprint_id)
+                                    sto.story_point = str(story_points)
                                     tasktm.save()
                                     break
 
@@ -167,6 +169,7 @@ class Edit():
             else:
                 if selected_epic=='All Epics':
                     st_ = tasktm.tasks_squeeze()
+                    
                     task_list = [task.name for task in st_]
                 else:
                     # all stories not all epices
@@ -188,6 +191,7 @@ class Edit():
 
             else:
                 picked_task_obj =   [task for task in st_ if task.name == picked_task][0]
+                st_id = picked_task_obj.story_id
                 task_name = st.text_input("Task Name", value=picked_task_obj.name)
                 task_estimation_date = st.date_input("Estimate Date", value=picked_task_obj.estimate_date)
                 task_description  = st.text_input("Desclription", value=picked_task_obj.description )
@@ -220,50 +224,49 @@ class Edit():
                 if task_validation=='Success':
                     if picked_task=='Add new task':
                         for ep in tasktm.epics:
-                            if ep.id == ep_id:
-                                for sto in ep.stories:
-                                    if sto.id==st_id:
+                            for sto in ep.stories:
+                                if sto.id==st_id:
 
-                                        new_task = tm.Task(df=tasktm.df_tasks)
+                                    new_task = tm.Task(df=tasktm.df_tasks)
 
-                                        new_task.name = task_name
-                                        new_task.story_id = str(st_id)
-                                        new_task.description = task_description
-                                        new_task.estimate_date = str(task_estimation_date)
-                                        if task_is_completed:
-                                            new_task.complitation_date = str(task_complitation_date)
-                                        else:
-                                            new_task.complitation_date = None
-                                        if task_is_cancelled:
-                                            new_task.is_cancelled = 'true'
-                                        else:
-                                            new_task.is_cancelled = 'false'
-                                        sto.tasks.append(new_task)
-                                        tasktm.save()
-                                        break
+                                    new_task.name = task_name
+                                    new_task.story_id = str(st_id)
+                                    new_task.description = task_description
+                                    new_task.estimate_date = str(task_estimation_date)
+  
+                                    if task_is_completed:
+                                        new_task.complitation_date = str(task_complitation_date)
+                                    else:
+                                        new_task.complitation_date = None
+                                    if task_is_cancelled:
+                                        new_task.is_cancelled = 'true'
+                                    else:
+                                        new_task.is_cancelled = 'false'
+                                    sto.tasks.append(new_task)
+                                    tasktm.save()
+                                    break
 
                     else:
                         for ep in tasktm.epics:
-                            if ep.id == ep_id:
-                                for sto in ep.stories:
-                                    if sto.id==st_id:
-                                        for tas in sto.tasks:
-                                            if tas.id==picked_task_obj.id:
+                            for sto in ep.stories:
+                                if sto.id==st_id:
+                                    for tas in sto.tasks:
+                                        if tas.id==picked_task_obj.id:
 
-                                                tas.name = task_name
-                                                tas.story_id = str(st_id)
-                                                tas.description = task_description
-                                                tas.estimate_date = str(task_estimation_date)
-                                                if task_is_completed:
-                                                    tas.complitation_date = str(task_complitation_date)
-                                                else:
-                                                    tas.complitation_date = None
-                                                if task_is_cancelled:
-                                                    tas.is_cancelled = 'true'
-                                                else:
-                                                    tas.is_cancelled = 'false'
-                                                tasktm.save()
-                                                break
+                                            tas.name = task_name
+                                            tas.story_id = str(st_id)
+                                            tas.description = task_description
+                                            tas.estimate_date = str(task_estimation_date)
+                                            if task_is_completed:
+                                                tas.complitation_date = str(task_complitation_date)
+                                            else:
+                                                tas.complitation_date = None
+                                            if task_is_cancelled:
+                                                tas.is_cancelled = 'true'
+                                            else:
+                                                tas.is_cancelled = 'false'
+                                            tasktm.save()
+                                            break
 
                     st.success("Story was added")
                     time.sleep(2)
