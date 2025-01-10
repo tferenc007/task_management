@@ -182,7 +182,7 @@ class AddActivity():
                     del st.session_state.task
                     st.rerun()      
                 if st.button("Cancel Task", key=f'task_cancel_button{task.id}') and task_complete_date <= today:
-                    self.tasktm.complete_task(task, task_complete_date)
+                    self.tasktm.cancel_task(task)
                     st.session_state.header_success = True
                     st.session_state.button_clicked=''
                     del st.session_state.task
