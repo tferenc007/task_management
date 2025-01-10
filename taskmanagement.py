@@ -337,7 +337,7 @@ class TaskManagement:
             if sprint_number<4:
                 pi_adj = f"PI 0"
             else:
-                pi_adj = f"PI {sprint_number//5 + 1}"
+                pi_adj = f"PI {(sprint_number-4)//5 + 1}"
             sprint_data.append({
                 'sprint_id': f"Sprint {sprint_number}",
                 'sprint_start_date': start_date.strftime('%Y-%m-%d'),
