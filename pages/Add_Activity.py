@@ -52,10 +52,9 @@ class AddActivity():
         if st.button("(*)", key='add_story_button'):
             if st.session_state.button_clicked == 'Add new story':
                 st.session_state.button_clicked = ''
-                st.session_state.story_frame_status[f"frame_key_{story_frame.id}" ] = True
             else:
                 st.session_state.button_clicked = 'Add new story'
-
+ 
         if st.session_state.button_clicked == 'Add new story':
             st.write("Add new story")
             epic_selected = st.selectbox('Select Epic', [epic.name for epic in self.tasktm.epics])
@@ -84,7 +83,7 @@ class AddActivity():
             for story in stories:
                 st.session_state.story_frame_status[f"frame_key_{story.id}"] = False
 
-        for story_frame in stories:
+        for story_frame in stories:          
             frame_bool = st.session_state.story_frame_status[f"frame_key_{story_frame.id}"]
             with st.expander(story_frame.name, expanded=frame_bool):
                     st.write(story_frame.description)
@@ -111,8 +110,10 @@ class AddActivity():
                                     if st.button(task.name,use_container_width=False,key=f'task_button{task.id}', disabled=task_disabled, help=tooltip):
                                         if st.session_state.button_clicked == f'task_button{task.id}':
                                             st.session_state.button_clicked = ''
+                                            self.story_frame_status(stories, story_frame.id)
                                         else:
                                             st.session_state.button_clicked = f'task_button{task.id}'
+                                            self.story_frame_status(stories, story_frame.id)
                                         st.rerun()
                                 if  st.session_state.button_clicked==f'task_button{task.id}':
                                     st.session_state.task = task
@@ -132,8 +133,10 @@ class AddActivity():
                                     if st.button(task.name,use_container_width=False,key=f'task_button{task.id}', disabled=task_disabled, help=tooltip):
                                         if st.session_state.button_clicked == f'task_button{task.id}':
                                             st.session_state.button_clicked = ''
+                                            self.story_frame_status(stories, story_frame.id)
                                         else:
                                             st.session_state.button_clicked = f'task_button{task.id}'
+                                            self.story_frame_status(stories, story_frame.id)
                                         st.rerun()
                                 if st.session_state.button_clicked==f'task_button{task.id}':
                                     st.session_state.task = task
@@ -145,11 +148,14 @@ class AddActivity():
                                     if tick_mark=='cancelled':
                                         st.write("❌")
                             task_vertical = True
+
                     if st.button("(+)", key=f'add_task_button{story_frame.id}'):
                         if st.session_state.button_clicked ==  f'add_task_button{story_frame.id}':
                             st.session_state.button_clicked = ''
+                            self.story_frame_status(stories, story_frame.id)
                         else:
                             st.session_state.button_clicked =  f'add_task_button{story_frame.id}'
+                            self.story_frame_status(stories, story_frame.id)
 
                     if st.session_state.button_clicked == f'add_task_button{story_frame.id}':
                         task_name = st.text_input("Task Name", key=f'task_name{story_frame.id}')
@@ -164,6 +170,14 @@ class AddActivity():
         #     print(" clicked")
         #     #self.add_to_db()
             
+
+    def story_frame_status(self, stories, story_id):
+        for _st in stories:
+            if _st.id == story_id:
+                st.session_state.story_frame_status[f"frame_key_{_st.id}"] = True
+            else:
+                st.session_state.story_frame_status[f"frame_key_{_st.id}"] = False
+
 
 
     def add_to_db(self, story_frame):
@@ -180,14 +194,12 @@ class AddActivity():
                     self.tasktm.complete_task(task, task_complete_date)
                     st.session_state.header_success = True
                     st.session_state.button_clicked=''
-                    st.session_state.story_frame_status[f"frame_key_{story_frame.id}" ] = True
                     del st.session_state.task
                     st.rerun()      
                 if st.button("Cancel Task", key=f'task_cancel_button{task.id}') and task_complete_date <= today:
                     self.tasktm.cancel_task(task)
                     st.session_state.header_success = True
                     st.session_state.button_clicked=''
-                    st.session_state.story_frame_status[f"frame_key_{story_frame.id}" ] = True
                     del st.session_state.task
                     st.rerun()      
                     
