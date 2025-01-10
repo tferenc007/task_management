@@ -36,7 +36,14 @@ class AddActivity():
         sprint_lists = self.tasktm.dic_sprint.keys()
         sprint_lists = list(sprint_lists)
         sprint_lists.insert(0, "All")
+        check_if_sprint_changed = st.session_state.current_sprint_selected
         st.session_state.current_sprint_selected = st.selectbox('Select Sprint', sprint_lists,index=self.tasktm.get_current_sprint_id('index')+1)
+
+        if st.session_state.current_sprint_selected != check_if_sprint_changed:
+            sprint_is_changed = True
+        else:
+            sprint_is_changed = False
+            # self.is_button_clicked =
 
         e_cols = st.columns(len(self.tasktm.epics))
         
@@ -78,7 +85,8 @@ class AddActivity():
         else:
             stories = [story for story in self.tasktm.stories_squeeze() if story.epic_id in st.session_state.epic_list
                        and story.sprint_id==st.session_state.current_sprint_selected]
-        if 'story_frame_status' not in st.session_state:
+            
+        if 'story_frame_status' not in st.session_state or sprint_is_changed:
             st.session_state.story_frame_status = {}
             for story in stories:
                 st.session_state.story_frame_status[f"frame_key_{story.id}"] = False
