@@ -45,18 +45,16 @@ class AddActivity():
             sprint_is_changed = False
             # self.is_button_clicked =
 
-        e_cols = st.columns(len(self.tasktm.epics))
+        with st.expander("Filters", expanded=False):
+            e_cols = st.columns(len(self.tasktm.epics))
+            for i, epic in enumerate(self.tasktm.epics):
+                if e_cols[i].button(epic.name,use_container_width=True, key=epic.id):
+                    st.session_state.epic_list = [epic.id for epic in self.tasktm.epics]
+                    st.session_state.epic_list = [e for e in st.session_state.epic_list if e == epic.id]
+            if st.button('All Filters',use_container_width=True, key='all filters'):
+                st.session_state.epic_list = self.tasktm.epics_to_list('id')
         
-        if st.button('All Filters',use_container_width=True, key='all filters'):
-            st.session_state.epic_list = self.tasktm.epics_to_list('id')
-            # self.is_button_clicked = True
-        for i, epic in enumerate(self.tasktm.epics):
-            if e_cols[i].button(epic.name,use_container_width=True, key=epic.id):
-                st.session_state.epic_list = [epic.id for epic in self.tasktm.epics]
-                st.session_state.epic_list = [e for e in st.session_state.epic_list if e == epic.id]
-                # self.is_button_clicked = True
-        
-        if st.button("(*)", key='add_story_button'):
+        if st.button("(+)", key='add_story_button'):
             if st.session_state.button_clicked == 'Add new story':
                 st.session_state.button_clicked = ''
             else:
