@@ -13,6 +13,10 @@ class View():
             st.session_state.sidebar_visible = False
 
             st.set_page_config(page_title="View")
+            if os.path.isfile('local.txt')==False:
+                if taskm.check_db()==False:
+                    be.find_latest_email_and_save_attachment()
+                    st.rerun()
 
         st.markdown("<h1 style='text-align: center;'>View</h1>", unsafe_allow_html=True)
         st.selectbox("Select View",["Current"])

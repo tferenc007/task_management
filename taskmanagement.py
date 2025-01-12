@@ -26,6 +26,7 @@ class TaskManagement:
         self.tasks_df = pd.read_sql_query("SELECT * FROM tasks", conn, dtype=str)
         self.objectives_df = pd.read_sql_query("SELECT * FROM objectives", conn, dtype=str)
         self.sprint_dic = self.__create_sprint_dataframe(sprint_days=14, start_date='2024-11-18',sprint_number=100)
+        self._run_type = pd.read_sql_query("SELECT * FROM run_type", conn, dtype=str)
         conn.close()
         
         epic_ids = self.epic_df["id"].tolist()
@@ -261,11 +262,14 @@ class TaskManagement:
         e_df = pd.DataFrame(epic_dic)
         s_df = pd.DataFrame(story_dic)
         t_df = pd.DataFrame(task_dic)
+        run_type = pd.DataFrame([{'is_prod': 'true'}])
+
         # save object to database
         conn = sq.connect('data/database.db')
         e_df.to_sql('epics', conn, if_exists='replace', index=False)
         s_df.to_sql('stories', conn, if_exists='replace', index=False)
         t_df.to_sql('tasks', conn, if_exists='replace', index=False)
+        run_type.to_sql('run_type', conn, if_exists='replace', index=False)
         conn.close()
         
         if os.path.isfile('local.txt'):
@@ -275,7 +279,12 @@ class TaskManagement:
                 body='Please find the attached file.',
                 attachment_path='data/database.db'
                 )
-    
+    def check_db(self):
+        if self._run_type.at[0,'is_prod']=='false':
+            return False
+        else:
+            return True
+
     def get_pi_end_date(self, pi_id):
         max_date = None
         for sprint, values in self.dic_sprint.items():
@@ -657,11 +666,14 @@ if __name__ =='__main__':
 
     # print(tasks_df)
     tasktm = TaskManagement()
-    objective_list = tasktm.objectives_to_list('name')
-    objective_list.insert(0, 'No objective')
-    name = 'No objective'
-    print(tasktm.objective_id_by_name(name))
     
+    print(tasktm.check_db())
+    
+    # be.send_email_with_attachment(
+    #     body='Please find the attached file.',
+    #     attachment_path='data/database.db'
+    #     )
+
 
     # print(tm.story_count())
     # for task in tm.tasks_squeeze(show_all=True):
