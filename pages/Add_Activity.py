@@ -74,22 +74,21 @@ class AddActivity():
                 self.tasktm.add_story(story_name=story_name, story_description=story_description, sprint_id=st.session_state.current_sprint_selected
                                         , epic_id=epic_id, story_point=story_points, objective_id=tasktm.objective_id_by_name(objective_id))
                 st.session_state.button_clicked = ''
+                self.__reasign_story__(st.session_state.current_sprint_selected)
+                self.__story_frame_to_false__()
+                st.session_state.story_frame_status = {}
+
                 st.rerun()
 
   
-
-        if st.session_state.current_sprint_selected=='All':
-            stories = [story for story in self.tasktm.stories_squeeze() if story.epic_id in st.session_state.epic_list]
-        else:
-            stories = [story for story in self.tasktm.stories_squeeze() if story.epic_id in st.session_state.epic_list
-                       and story.sprint_id==st.session_state.current_sprint_selected]
+        self.__reasign_story__(st.session_state.current_sprint_selected)
             
         if 'story_frame_status' not in st.session_state or sprint_is_changed:
             st.session_state.story_frame_status = {}
-            for story in stories:
+            for story in st.session_state.stories:
                 st.session_state.story_frame_status[f"frame_key_{story.id}"] = False
 
-        for story_frame in stories:          
+        for story_frame in  st.session_state.stories:          
             frame_bool = st.session_state.story_frame_status[f"frame_key_{story_frame.id}"]
             with st.expander(story_frame.name, expanded=frame_bool):
                     st.write(story_frame.description)
@@ -116,10 +115,10 @@ class AddActivity():
                                     if st.button(task.name,use_container_width=False,key=f'task_button{task.id}', disabled=task_disabled, help=tooltip):
                                         if st.session_state.button_clicked == f'task_button{task.id}':
                                             st.session_state.button_clicked = ''
-                                            self.story_frame_status(stories, story_frame.id)
+                                            self.story_frame_status(st.session_state.stories, story_frame.id)
                                         else:
                                             st.session_state.button_clicked = f'task_button{task.id}'
-                                            self.story_frame_status(stories, story_frame.id)
+                                            self.story_frame_status(st.session_state.stories, story_frame.id)
                                         st.rerun()
                                 if  st.session_state.button_clicked==f'task_button{task.id}':
                                     st.session_state.task = task
@@ -139,10 +138,10 @@ class AddActivity():
                                     if st.button(task.name,use_container_width=False,key=f'task_button{task.id}', disabled=task_disabled, help=tooltip):
                                         if st.session_state.button_clicked == f'task_button{task.id}':
                                             st.session_state.button_clicked = ''
-                                            self.story_frame_status(stories, story_frame.id)
+                                            self.story_frame_status(st.session_state.stories, story_frame.id)
                                         else:
                                             st.session_state.button_clicked = f'task_button{task.id}'
-                                            self.story_frame_status(stories, story_frame.id)
+                                            self.story_frame_status(st.session_state.stories, story_frame.id)
                                         st.rerun()
                                 if st.session_state.button_clicked==f'task_button{task.id}':
                                     st.session_state.task = task
@@ -158,10 +157,10 @@ class AddActivity():
                     if st.button("(+)", key=f'add_task_button{story_frame.id}'):
                         if st.session_state.button_clicked ==  f'add_task_button{story_frame.id}':
                             st.session_state.button_clicked = ''
-                            self.story_frame_status(stories, story_frame.id)
+                            self.story_frame_status(st.session_state.stories, story_frame.id)
                         else:
                             st.session_state.button_clicked =  f'add_task_button{story_frame.id}'
-                            self.story_frame_status(stories, story_frame.id)
+                            self.story_frame_status(st.session_state.stories, story_frame.id)
 
                     if st.session_state.button_clicked == f'add_task_button{story_frame.id}':
                         task_name = st.text_input("Task Name", key=f'task_name{story_frame.id}')
@@ -175,7 +174,18 @@ class AddActivity():
         # if not self.is_button_clicked:
         #     print(" clicked")
         #     #self.add_to_db()
-            
+    def __story_frame_to_false__(self):
+        st.session_state.story_frame_status = {}
+        for story in st.session_state.stories:
+            st.session_state.story_frame_status[f"frame_key_{story.id}"] = False
+
+    def __reasign_story__(self, filter):
+        if filter=='All':
+            st.session_state.stories = [story for story in self.tasktm.stories_squeeze() if story.epic_id in st.session_state.epic_list]
+        else:
+            st.session_state.stories = [story for story in self.tasktm.stories_squeeze() if story.epic_id in st.session_state.epic_list
+            and story.sprint_id==st.session_state.current_sprint_selected]
+    
 
     def story_frame_status(self, stories, story_id):
         for _st in stories:
