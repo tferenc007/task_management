@@ -279,6 +279,12 @@ class TaskManagement:
                 body='Please find the attached file.',
                 attachment_path='data/database.db'
                 )
+    def make_db_dev(self):
+        run_type = pd.DataFrame([{'is_prod': 'false'}])
+        conn = sq.connect('data/database.db')
+        run_type.to_sql('run_type', conn, if_exists='replace', index=False)
+        conn.close()
+
     def check_db(self):
         if self._run_type.at[0,'is_prod']=='false':
             return False
@@ -667,7 +673,7 @@ if __name__ =='__main__':
     # print(tasks_df)
     tasktm = TaskManagement()
     
-    print(tasktm.check_db())
+    tasktm.make_db_dev()
     
     # be.send_email_with_attachment(
     #     body='Please find the attached file.',

@@ -93,6 +93,9 @@ class View():
         # )
         if st.button("Synch database"):
             be.find_latest_email_and_save_attachment()
+            if os.path.isfile('local.txt'):
+                taskm.make_db_dev()
+
     def extract_number(pi_id):
         return int(pi_id.split()[1])
   
