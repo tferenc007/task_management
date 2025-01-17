@@ -42,7 +42,8 @@ class Edit():
 
 
     def add_new_story(self):
-        epic_list = tasktm.epics_to_list('name')
+        epic_list_origin = tasktm.epics_to_list('name')
+        epic_list = epic_list_origin.copy()
         epic_list.insert(0,'All Epics')
         ep_id = None
         selected_epic = st.selectbox("Select Epic",epic_list, key='edit_story')
@@ -57,7 +58,9 @@ class Edit():
         story_list.insert(0,'Add new story')
       
         picked_story = st.selectbox("Pick the story",story_list) 
+        st.write('-------------------')
         if picked_story=='Add new story':
+            epic_name = st.selectbox("Epic Name",epic_list_origin, key='edit_story_epic_name')
             story_name = st.text_input("Name")
             story_description = st.text_input("Description")
             sprint_id = st.selectbox("Sprint", tasktm.dic_sprint.keys() )
@@ -71,14 +74,14 @@ class Edit():
             objective_id = st.selectbox("Objective", objective_list)
         else:
             picked_story_obj =  [story for story in tasktm.stories_squeeze() if story.name == picked_story][0]
-            # [story for story in ep.stories if story.name == picked_story][0]
-            st_id = picked_story_obj.id
             ep_id = picked_story_obj.epic_id
+            epic = tasktm.epic_by_id(ep_id)
+            st_id = picked_story_obj.id
 
-            
+            epic_name = st.selectbox("Epic Name",epic_list_origin, key='edit_story_epic_name', index=epic.epic_index)
             story_name = st.text_input("Name",value=picked_story_obj.name)
             story_description = st.text_input("Description",value=picked_story_obj.description)
-            sprint_id = st.selectbox("Sprint", tasktm.dic_sprint.keys(), index=picked_story_obj.story_index)
+            sprint_id = st.selectbox("Sprint", tasktm.dic_sprint.keys(), index=picked_story_obj.sprint_index)
             sprint_start_date = datetime.strptime(tasktm.dic_sprint[sprint_id]['sprint_start_date'], "%Y-%m-%d")
             sprint_end_date = datetime.strptime(tasktm.dic_sprint[sprint_id]['sprint_end_date'], "%Y-%m-%d")
             story_points = st.selectbox("Story Points", ["1",'3','5','8','13','21'], index=picked_story_obj.story_point_index)
@@ -101,40 +104,16 @@ class Edit():
             validation_text = self.story_validation(story_name, story_est_start_date, story_est_end_date)
             if validation_text=='Success':
                 if picked_story=='Add new story':
-                    for ep in tasktm.epics:
-                         if ep.id == ep_id:
-                            new_story = tm.Story(df=tasktm.df_stories)
-                            new_story.name = story_name
-                            new_story.epic_id = ep_id
-                            new_story.description = story_description
-                            new_story.est_start_date = str(story_est_start_date)
-                            new_story.est_end_date = str(story_est_end_date)
-                            new_story.sprint_id = str(sprint_id)
-                            new_story.story_point = str(story_points)
-                            new_story.objective_id = tasktm.objective_id_by_name(objective_id)
-                            ep.stories.append(new_story)
-                            tasktm.save()
-                            break
-
+                    tasktm.add_story(story_name, story_description, str(sprint_id), tasktm.epic_by_name(epic_name).id,
+                                      str(story_points), objective_id =tasktm.objective_id_by_name(objective_id))
                 else:
-                     for ep in tasktm.epics:
-                         if ep.id == ep_id:
-                             for sto in ep.stories:
-                                 if sto.id== st_id:
-                                    sto.name = story_name
-                                    sto.est_start_date = picked_story_obj.est_start_date
-                                    sto.est_end_date = picked_story_obj.est_end_date
-                                    sto.description = story_description
-                                    sto.sprint_id = str(sprint_id)
-                                    sto.story_point = str(story_points)
-                                    tasktm.save()
-                                    break
-
+                    tasktm.edit_story(story_id=st_id, story_name=story_name, story_description=story_description,
+                                       sprint_id=str(sprint_id), epic_id=tasktm.epic_by_name(epic_name).id, story_point=str(story_points),
+                                         objective_id = tasktm.objective_id_by_name(objective_id))
                 st.success("Story was added")
                 time.sleep(2)
                 st.rerun()
             else:
-                
                 st.error(f"Adding new story has been failed - {validation_text}")
 
     def story_validation(self, story_name, story_est_start_date, story_est_end_date):

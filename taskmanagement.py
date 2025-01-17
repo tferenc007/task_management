@@ -178,7 +178,30 @@ class TaskManagement:
                 self.save()
         # create a new story
         pass
-
+    def edit_story(self, story_id, story_name=None, story_description=None, sprint_id=None, epic_id=None, story_point=None, objective_id ='0'):
+        
+        story_found = False
+        # find a story       
+        for epic in self.epics:
+            for story in epic.stories:
+                if story.id==story_id:
+                    story_found = True
+                    if story_name!=None:
+                        story.name = story_name
+                    if story_description!=None:                        
+                        story.description = story_description
+                    if sprint_id!=None:
+                        story.sprint_id = sprint_id
+                    if epic_id!=None:
+                        story.epic_id = epic_id
+                    if story_point!=None:
+                        story.story_point = story_point
+                    if objective_id!=None:
+                        story.objective_id = objective_id
+        if story_found:
+            self.save()
+        # create a new story
+        pass
     def add_epic(self, epic):
         # create a new epic
         pass
@@ -227,6 +250,9 @@ class TaskManagement:
     
     def epic_by_name(self, epic_name):
         return [epic for epic in self.epics if epic.name == epic_name][0]
+    
+    def epic_by_id(self, epic_id):
+        return [epic for epic in self.epics if epic.id == epic_id ][0]
     
     def story_by_name(self, story_name, epic_name=None):
         if epic_name==None:
@@ -387,7 +413,13 @@ class Epic:
     @name.setter
     def name(self, value):
         self._name = value
-
+    @property
+    def epic_index(self):
+        match = re.search(r'\b\d+\b', self.id)
+        if match:
+            return int(match.group())-1
+        else:
+            None
     def get_all_stories(self, story_df, task_df):
         story_ids = story_df.loc[story_df["epic_id"] == self.id, "id"].tolist()
         self._stories.clear()
@@ -458,7 +490,7 @@ class Story:
         self._est_end_date = tm.dic_sprint[value]["sprint_end_date"]
 
     @property
-    def story_index(self):
+    def sprint_index(self):
         match = re.search(r'\b\d+\b', self._sprint_id)
         if match:
             return int(match.group())-1
