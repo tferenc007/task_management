@@ -135,25 +135,36 @@ class Edit():
         else:
             story_list = tasktm.stories_to_list('name')       
         story_list.insert(0,'All Stories')
+
         if len(story_list)>0:
             selected_story = st.selectbox("Pick the story", story_list, key='costum_key')
-            if selected_story!='All Stories':
-                if selected_epic=='All Epics':
-                    st_ = tasktm.story_by_name(selected_story) 
-                else:
-                    st_ = tasktm.story_by_name(selected_story,selected_epic) 
-                st_id = st_.id
-                task_list = tasktm.tasks_to_list('name',st_id)
-                st_ = [sto for sto in st_.tasks if sto.id == st_id][0]
-            else:
-                if selected_epic=='All Epics':
+            if selected_epic=='All Epics':
+                if selected_story=='All Stories':
                     st_ = tasktm.tasks_squeeze()
-                    
+                    tasks = st_
                     task_list = [task.name for task in st_]
                 else:
-                    # all stories not all epices
-                    st_ = tasktm.story_by_name(selected_epic) 
-                    pass
+                    st_ = []
+                    st_.append(tasktm.story_by_name(selected_story))
+                    tasks = st_[0].tasks
+                    task_list = [task.name for task in tasks]
+            else:
+                if selected_story=='All Stories':
+                    st_ = tasktm.stories_squeeze()
+
+                    story_filterd = [story for story in st_ if story.epic_id==ep_id]
+                    tasks = []
+                    for story in story_filterd:
+                        for task in story.tasks:
+                            tasks.append(task)
+
+                    task_list = [task.name for task in tasks]
+                else:
+                    st_ = []
+                    st_.append(tasktm.story_by_name(selected_story))
+                    tasks = st_[0].tasks
+                    task_list = [task.name for task in tasks]
+
 
             task_list.insert(0,'Add new task')
             picked_task = st.selectbox('Pick the task',task_list) 
@@ -169,7 +180,7 @@ class Edit():
                 task_is_cancelled= st.checkbox("Is cancelled", value=False)
 
             else:
-                picked_task_obj =   [task for task in st_ if task.name == picked_task][0]
+                picked_task_obj = [task for task in tasks if task.name == picked_task][0]
                 st_id = picked_task_obj.story_id
                 task_name = st.text_input("Task Name", value=picked_task_obj.name)
                 task_estimation_date = st.date_input("Estimate Date", value=picked_task_obj.estimate_date)
