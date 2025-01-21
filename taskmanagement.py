@@ -488,11 +488,14 @@ class Story:
 
     @property
     def sprint_index(self):
-        match = re.search(r'\b\d+\b', self._sprint_id)
-        if match:
-            return int(match.group())-1
+        if self.sprint_id=='Backlog':
+            return 0
         else:
-            None
+            match = re.search(r'\b\d+\b', self._sprint_id)
+            if match:
+                return int(match.group())-1
+            else:
+                None
 
     @property
     def is_completed(self):
