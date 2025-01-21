@@ -36,7 +36,7 @@ class View():
             current_sprint_end= datetime.datetime.strptime(current_sprint_end, "%Y-%m-%d")
 
         else:
-            sprint_id = st.selectbox('Select Sprint', taskm.dic_sprint.keys(),index=taskm.get_current_sprint_id('index'))
+            sprint_id = st.selectbox('Select Sprint', taskm.dic_sprint.keys(),index=taskm.get_current_sprint_id('index')+1)
 
             current_sprint_start = taskm.dic_sprint[sprint_id]["sprint_start_date"]
             current_sprint_start= datetime.datetime.strptime(current_sprint_start, "%Y-%m-%d")

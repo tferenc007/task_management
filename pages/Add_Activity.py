@@ -37,7 +37,7 @@ class AddActivity():
         sprint_lists = list(sprint_lists)
         sprint_lists.insert(0, "All")
         check_if_sprint_changed = st.session_state.current_sprint_selected
-        st.session_state.current_sprint_selected = st.selectbox('Select Sprint', sprint_lists,index=self.tasktm.get_current_sprint_id('index')+1)
+        st.session_state.current_sprint_selected = st.selectbox('Select Sprint', sprint_lists,index=self.tasktm.get_current_sprint_id('index')+2)
 
         if st.session_state.current_sprint_selected != check_if_sprint_changed:
             sprint_is_changed = True

@@ -385,6 +385,7 @@ class TaskManagement:
             # Update the start date for the next sprint
             start_date = end_date + timedelta(days=1)
         
+        sprint_data.insert(0, {'sprint_id': 'Backlog', 'sprint_start_date': '2099-01-01', 'sprint_end_date': '2099-01-01', 'pi_id': 'PI 0'})
         # Create a DataFrame from the sprint data
         df = pd.DataFrame(sprint_data)
     
