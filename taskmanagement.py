@@ -463,6 +463,19 @@ class Story:
         elif self.story_point == "21":
             return 5
     @property
+    def story_point_completed(self):
+        task_count = len(self.tasks)
+        i = 0
+        for task in self.tasks:
+            if task.is_completed=='true':
+                i = i + 1
+        if i==0:
+            return float(0)
+        else:
+            complitation_percent = task_count / i
+            return float(round(complitation_percent * int(self.story_point), 2))
+
+    @property
     def story_point(self):
         return self._story_point    
     @story_point.setter
