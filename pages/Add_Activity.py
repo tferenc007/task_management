@@ -161,6 +161,28 @@ class AddActivity():
                             st.session_state.button_clicked =  f'add_task_button{story_frame.id}'
                             self.story_frame_status(st.session_state.stories, story_frame.id)
 
+                    if st.button("Change Sprint", key=f'assign_sprint_button{story_frame.id}'):
+                        if st.session_state.button_clicked ==  f'assign_sprint_button{story_frame.id}':
+                            st.session_state.button_clicked = ''
+                            self.story_frame_status(st.session_state.stories, story_frame.id)
+                        else:
+                            st.session_state.button_clicked =  f'assign_sprint_button{story_frame.id}'
+                            self.story_frame_status(st.session_state.stories, story_frame.id)
+
+                    if st.session_state.button_clicked ==  f'assign_sprint_button{story_frame.id}':
+                        sprint_lists = self.tasktm.dic_sprint.keys()
+                        sprint_lists = list(sprint_lists)
+                        sprint_index = sprint_lists.index(story_frame.sprint_id)
+
+                        sprint_selected = st.selectbox('Select Sprint', sprint_lists, key="change_sprint_key", index=sprint_index)
+                        if sprint_selected != story_frame.sprint_id:
+                            self.tasktm.edit_story(story_id=story_frame.id, sprint_id=sprint_selected)
+
+                            st.session_state.button_clicked = ''
+                            self.__reasign_story__(st.session_state.current_sprint_selected)
+                            self.__story_frame_to_false__()
+                            st.rerun()
+                        pass
                     if st.session_state.button_clicked == f'add_task_button{story_frame.id}':
                         task_name = st.text_input("Task Name", key=f'task_name{story_frame.id}')
                         task_est = st.date_input("Estimate Date", key=f'task_estimate{story_frame.id}', value=None)
