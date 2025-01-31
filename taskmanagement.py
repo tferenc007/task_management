@@ -5,18 +5,6 @@ import re
 import backup_email as be
 import os
 
-
-# epic_df = pd.read_csv("data/epics.csv")
-# stories_df = pd.read_csv("data/stories.csv")
-# tasks_df = pd.read_csv("data/tasks.csv")
-
-
-# conn = sq.connect('data/database.db')
-# epic_df.to_sql('epics', conn, if_exists='replace', index=False)
-# stories_df.to_sql('stories', conn, if_exists='replace', index=False)
-# tasks_df.to_sql('tasks', conn, if_exists='replace', index=False)
-# conn.close()
-
 class TaskManagement:
 
     def __init__(self):
@@ -337,7 +325,7 @@ class TaskManagement:
         return str(min_date)
     
 
-    def get_current_sprint_id(self, type='id'):
+    def get_current_sprint_pi_id(self, sprint_pi = 'sprint'):
         """
         Return the sprint_id from the DataFrame where today's date is between the start and end dates of the sprint.
 
@@ -350,16 +338,12 @@ class TaskManagement:
         today = datetime.today().strftime('%Y-%m-%d')
         
         for sprint_id, dates in self.dic_sprint.items():
+
             if dates['sprint_start_date'] <= today <= dates['sprint_end_date']:
-                if type=='id':
+                if sprint_pi=='sprint':
                     return sprint_id
-                elif type=='index':
-                    match = re.search(r'\b\d+\b', sprint_id)
-                    if match:
-                        return int(match.group())-1
-                elif type=='pi_id':
-                    return dates("pi_id")
-        
+                elif sprint_pi=='pi':
+                    return dates["pi_id"]
         return None
     def __create_sprint_dataframe(self, sprint_days,start_date, sprint_number ):
         # Initialize the list to store sprint data

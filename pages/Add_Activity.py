@@ -28,7 +28,7 @@ class AddActivity():
             st.session_state.header_success = False
 
         if 'current_sprint_selected' not in st.session_state:
-            st.session_state.current_sprint_selected = self.tasktm.get_current_sprint_id()
+            st.session_state.current_sprint_selected = self.tasktm.get_current_sprint_pi_id()
 
         if st.session_state.header_success:
             st.success("Task has been completed")
@@ -37,7 +37,8 @@ class AddActivity():
         sprint_lists = list(sprint_lists)
         sprint_lists.insert(0, "All")
         check_if_sprint_changed = st.session_state.current_sprint_selected
-        st.session_state.current_sprint_selected = st.selectbox('Select Sprint', sprint_lists,index=self.tasktm.get_current_sprint_id('index')+2)
+        current_sprint_index = sprint_lists.index(self.tasktm.get_current_sprint_pi_id())
+        st.session_state.current_sprint_selected = st.selectbox('Select Sprint', sprint_lists,index=current_sprint_index)
 
         if st.session_state.current_sprint_selected != check_if_sprint_changed:
             sprint_is_changed = True
