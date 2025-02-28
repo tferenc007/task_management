@@ -15,11 +15,11 @@
 ### [tm-13] bug: dont show cancelled tasks
 ### [tm-14] bug: error when epic don't have any storiess added
 ### [tm-15] bug: Add activity> add tooltip, and add feature to hide task
+### [tm-11] feature: Edit > add dropdown to select sprint sprint
 
 ## backlog
 
 ### [tm-7] Add feature for validation added stories/tasks
-### [tm-11] feature: Edit > add dropdown to select sprint sprint
 
 
 ## backlog phase 2
