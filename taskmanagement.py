@@ -129,6 +129,7 @@ class TaskManagement:
             for story_name in selected_stories:
                 st_id = self.stories_df.loc[self.stories_df['name']==story_name, 'id'].values[0]
                 self.edit_story(story_id=st_id, objective_id =new_objective["objective_id"])
+            self.save()
     def last_activity(self, start_date, end_date):
         first_iteration = True
         l_activity = None
