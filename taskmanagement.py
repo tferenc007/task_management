@@ -147,15 +147,25 @@ class TaskManagement:
         return l_activity
     
 
-    def story_count(self,  est_start_date=date(1900,1,1), est_end_date=date(2999,1,1), is_completed=None, story_point=False):
-        stories = self.stories_squeeze(est_start_date=est_start_date, est_end_date=est_end_date, is_completed=is_completed)
-        if story_point ==False:
+    def story_count(self,  est_start_date=date(1900,1,1), est_end_date=date(2999,1,1), options='all_cnt'):
+        stories = self.stories_squeeze(est_start_date=est_start_date, est_end_date=est_end_date)
+
+        if options == 'all_cnt':
             return len(stories)
-        else:
+        elif options == 'all_completed_cnt':
+            stories_completed = [story for story in stories if story.is_completed]
+            return len(stories_completed)
+        elif options == 'all_sp':
             i = 0
             for story in stories:
                 i = i + int(story.story_point)
             return i
+        elif options == 'all_completed_sp':
+            i = 0
+            for story in stories:
+                i = i + int(story.story_point_completed)
+            return i
+
     
 
     def task_count(self,  est_start_date=date(1900,1,1), est_end_date=date(2999,1,1), is_completed=None):
@@ -499,7 +509,7 @@ class Story:
         if i==0:
             return float(0)
         else:
-            complitation_percent = task_count / i
+            complitation_percent =  i / task_count
             return float(round(complitation_percent * int(self.story_point), 2))
 
     @property

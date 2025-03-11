@@ -91,7 +91,11 @@ class AddActivity():
         for story_frame in  st.session_state.stories:          
             frame_bool = st.session_state.story_frame_status[f"frame_key_{story_frame.id}"]
             with st.expander(story_frame.name, expanded=frame_bool):
-                    st.write(story_frame.description)
+                    st.write(f'Desc:{story_frame.description}')
+                    objective_name = tasktm.df_objectives[tasktm.df_objectives['objective_id']==story_frame.objective_id]
+                    if not objective_name.empty:
+                        st.write(f'Obj: {objective_name['objective_name'].values[0]}')
+
                     s_col1,empty_col, s_col2 = st.columns([1.5, 0.5, 1.5],)
                     task_vertical = True
                     for task in story_frame.tasks:
