@@ -23,11 +23,7 @@ class View():
         with st.sidebar:
             self.export_db()
         if st.checkbox("PI View",value=False):
-            unique_pi_ids = [details['pi_id'] for details in  taskm.dic_sprint.values()]
-            unique_pi_ids = list(set(unique_pi_ids))
-            unique_pi_ids = [[value, value.split()[1]] for value in  unique_pi_ids]
-            sorted_unique_pi_ids = sorted(unique_pi_ids, key= lambda x: int(x[1]))
-            sorted_unique_pi_ids = [value[0] for value in sorted_unique_pi_ids]
+            sorted_unique_pi_ids = taskm.sorted_unique_pi_ids()
             current_pi_index = sorted_unique_pi_ids.index(taskm.get_current_sprint_pi_id(sprint_pi='pi'))
             sprint_id = st.selectbox('Select PI', sorted_unique_pi_ids, index=current_pi_index)
             current_sprint_start = taskm.get_pi_start_date(sprint_id)
