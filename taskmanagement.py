@@ -65,7 +65,8 @@ class TaskManagement:
         if objective_name == 'No objective':
             return '0'
         else:
-            return str(self.objectives_df.loc[self.objectives_df['objective_name']==objective_name, 'objective_id'].squeeze())
+            
+            return self.objectives_df.loc[self.objectives_df['objective_name']==objective_name, 'objective_id'].values[0]
     
     def tasks_squeeze(self, start_date=date(1900,1,1), end_date=date(2999,1,1), show_all=False):
         squeezed_tasks =[]
@@ -80,7 +81,13 @@ class TaskManagement:
                     elif show_all:
                         squeezed_tasks.append(task)
         return squeezed_tasks
-    
+    def sorted_unique_pi_ids(self):
+        unique_pi_ids = [details['pi_id'] for details in  self.dic_sprint.values()]
+        unique_pi_ids = list(set(unique_pi_ids))
+        unique_pi_ids = [[value, value.split()[1]] for value in  unique_pi_ids]
+        sorted_unique_pi_ids = sorted(unique_pi_ids, key= lambda x: int(x[1]))
+        sorted_unique_pi_ids = [value[0] for value in sorted_unique_pi_ids]
+        return sorted_unique_pi_ids
     def stories_squeeze(self, est_start_date=date(1900,1,1), est_end_date=date(2999,1,1), is_completed=None):
         squeezed_stories = []
         for epic in self.epics:
@@ -98,7 +105,27 @@ class TaskManagement:
         return squeezed_stories
 
 
+    def add_objective(self, objective_name, objective_description, objective_due_date, is_life_goal, life_goal=False):
+        if is_life_goal:
+            is_life_goal_text = 'yes'
+            parent_obj = None
+            objective_due_date = None
+        else:
+            is_life_goal_text = 'no'
+            parent_obj = self.objective_id_by_name(life_goal)
 
+        new_objective = {'objective_id': str(int(self.objectives_df['objective_id'].max())+1),
+                         'objective_name': objective_name,
+                         'is_life_goal': is_life_goal_text,
+                         'parent_object': str(parent_obj),
+                         'objective_description': objective_description,
+                         'due_pi': str(objective_due_date)
+                         }
+        self.objectives_df = pd.concat([self.objectives_df, pd.DataFrame([new_objective])], ignore_index=True)
+        conn = sq.connect('data/database.db')
+        self.objectives_df.to_sql('objectives', conn, if_exists='replace', index=False)
+        conn.close()
+        self.send_backup_if_prod()
     def last_activity(self, start_date, end_date):
         first_iteration = True
         l_activity = None
@@ -201,11 +228,18 @@ class TaskManagement:
             epic_list = [epic.id for epic in self.epics]
         return epic_list
     
-    def objectives_to_list(self, field_name):
+    def objectives_to_list(self, field_name, is_life_goal=None):
+        if is_life_goal == None:
+            filtered_objectives = self.df_objectives
+        else:
+            filtered_objectives = self.df_objectives[self.df_objectives['is_life_goal']== is_life_goal]
+
+        
+
         if field_name == 'name':
-            objective_list = [objective for objective in self.df_objectives['objective_name']]
+            objective_list = [objective for objective in filtered_objectives['objective_name']]
         elif field_name == 'id':
-            objective_list = [objective for objective in self.df_objectives['objective_id']]
+            objective_list = [objective for objective in filtered_objectives['objective_id']]
 
         return objective_list
     
@@ -281,7 +315,9 @@ class TaskManagement:
         t_df.to_sql('tasks', conn, if_exists='replace', index=False)
         run_type.to_sql('run_type', conn, if_exists='replace', index=False)
         conn.close()
-        
+        self.send_backup_if_prod()
+
+    def send_backup_if_prod(self):
         if os.path.isfile('local.txt'):
             print("backap is not implemented")
         else:
