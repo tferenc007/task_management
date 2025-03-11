@@ -108,9 +108,10 @@ class Edit():
                     tasktm.add_story(story_name, story_description, str(sprint_id), tasktm.epic_by_name(epic_name).id,
                                       str(story_points), objective_id =tasktm.objective_id_by_name(objective_id))
                 else:
-                    tasktm.edit_story(story_id=st_id, story_name=story_name, story_description=story_description,
+                    if tasktm.edit_story(story_id=st_id, story_name=story_name, story_description=story_description,
                                        sprint_id=str(sprint_id), epic_id=tasktm.epic_by_name(epic_name).id, story_point=str(story_points),
-                                         objective_id = tasktm.objective_id_by_name(objective_id))
+                                         objective_id = tasktm.objective_id_by_name(objective_id)):
+                        tasktm.save()
                 st.success("Story was added")
                 time.sleep(2)
                 st.rerun()

@@ -105,7 +105,7 @@ class TaskManagement:
         return squeezed_stories
 
 
-    def add_objective(self, objective_name, objective_description, objective_due_date, is_life_goal, life_goal=False):
+    def add_objective(self, objective_name, objective_description, objective_due_date, is_life_goal, life_goal=False, selected_stories=None):
         if is_life_goal:
             is_life_goal_text = 'yes'
             parent_obj = None
@@ -125,7 +125,11 @@ class TaskManagement:
         conn = sq.connect('data/database.db')
         self.objectives_df.to_sql('objectives', conn, if_exists='replace', index=False)
         conn.close()
-        self.send_backup_if_prod()
+        if selected_stories!=None and len(selected_stories)>0:
+            for story_name in selected_stories:
+                st_id = self.stories_df.loc[self.stories_df['name']==story_name, 'id'].values[0]
+                self.edit_story(story_id=st_id, objective_id =new_objective["objective_id"])
+            self.save()
     def last_activity(self, start_date, end_date):
         first_iteration = True
         l_activity = None
@@ -213,10 +217,8 @@ class TaskManagement:
                         story.story_point = story_point
                     if objective_id!=None:
                         story.objective_id = objective_id
-        if story_found:
-            self.save()
-        # create a new story
-        pass
+        return story_found
+        
     def add_epic(self, epic):
         # create a new epic
         pass
@@ -244,20 +246,25 @@ class TaskManagement:
         return objective_list
     
 
-    def stories_to_list(self, field_name, epic_id=None):
-        if epic_id == None:
-            all_stories = self.stories_squeeze()
-            if field_name == 'name':
-                story_list = [story.name for story in all_stories]
-            elif field_name == 'id':
-                story_list = [story.id for story in all_stories]
+    def stories_to_list(self, field_name, epic_id=None, filter_by=None):
+        if filter_by == None:
+            if epic_id == None:
+                all_stories = self.stories_squeeze()
+                if field_name == 'name':
+                    story_list = [story.name for story in all_stories]
+                elif field_name == 'id':
+                    story_list = [story.id for story in all_stories]
+            else:
+                ep = [epic for epic in self.epics if epic.id == epic_id][0]
+                if field_name == 'name':
+                    story_list = [story.name for story in ep.stories]
+                elif field_name == 'id':
+                    story_list = [story.id for story in ep.stories]
+            return story_list
         else:
-            ep = [epic for epic in self.epics if epic.id == epic_id][0]
-            if field_name == 'name':
-                story_list = [story.name for story in ep.stories]
-            elif field_name == 'id':
-                story_list = [story.id for story in ep.stories]
-        return story_list
+            # new definition story to list
+            filtered_df = self.df_stories.query(filter_by)
+            return filtered_df[field_name].tolist()
     def tasks_to_list(self, field_name, story_id):
         
         all_stories = self.stories_squeeze()

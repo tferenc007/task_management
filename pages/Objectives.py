@@ -23,15 +23,27 @@ class Objectives():
                 is_life_goal = True
                 life_goal = None
                 objective_due_date = None
+                selected_stories = None
             else:
                 objective_due_date = st.selectbox("Select PI", sorted_unique_pi_ids, index=current_pi_index)
                 life_goal = st.selectbox("Select Life Objective Category", life_goals)
+
+
+                sprint_list = [item[0] for item in tasktm.sprint_dic.items() if item[1]["pi_id"] == objective_due_date]
+                sprint_list_str = '", "'.join(sprint_list)
+                filter_query = f'sprint_id in  ("{sprint_list_str}")'
+                # print(filter_query)
+                story_from_pi = tasktm.stories_to_list('name', filter_by=filter_query)
+                selected_stories = st.multiselect('Assign story:', story_from_pi)
                 is_life_goal = False
             submit_button = st.button(label='Add Objective')
 
             if submit_button:
-                tasktm.add_objective(objective_name, objective_description, objective_due_date, is_life_goal, life_goal)
+                tasktm.add_objective(objective_name, objective_description, objective_due_date, is_life_goal, life_goal, selected_stories)
+                tasktm.send_backup_if_prod()
                 st.success("Objective added successfully!")
+                time.sleep(1)
+                st.rerun()
 
 
 
