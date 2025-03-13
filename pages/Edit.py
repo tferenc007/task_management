@@ -69,7 +69,7 @@ class Edit():
             sprint_end_date = datetime.strptime(tasktm.dic_sprint[sprint_id]['sprint_end_date'], "%Y-%m-%d")
             story_est_start_date = st.date_input("Est Start Date",value=sprint_start_date, disabled=True)
             story_est_end_date = st.date_input("Est End Date", value=sprint_end_date, disabled=True)
-            objective_list = tasktm.objectives_to_list('name',is_life_goal='no')
+            objective_list = tasktm.objectives_to_list('objective_name', filter_by='is_life_goal=="no"')
             objective_list.insert(0, 'No objective')
             objective_id = st.selectbox("Objective", objective_list)
         else:
@@ -90,11 +90,13 @@ class Edit():
             story_points = st.selectbox("Story Points", ["1",'3','5','8','13','21'], index=picked_story_obj.story_point_index)
             story_est_start_date = st.date_input("Est Start Date",value=sprint_start_date, disabled=True)
             story_est_end_date = st.date_input("Est End Date", value=sprint_end_date, disabled=True)
-            objective_list = tasktm.objectives_to_list('name',is_life_goal='no')
+            objective_list = tasktm.objectives_to_list('objective_name', filter_by='is_life_goal=="no"')
             objective_list.insert(0, 'No objective')
             objective_id = st.selectbox("Objective", objective_list, index=int(picked_story_obj.objective_id))
             if objective_id=='No objective':
                 objective_id = '0'
+            else:
+                 objective_id = tasktm.objective_id_by_name(objective_id)
             if st.button('Delete Story'):
                 for ep in tasktm.epics:
                     ep.stories[:] = [sto for sto in ep.stories if sto.id != st_id]
@@ -105,14 +107,15 @@ class Edit():
 
         if st.button("Add / Edit Story"):
             validation_text = self.story_validation(story_name, story_est_start_date, story_est_end_date)
+
             if validation_text=='Success':
                 if picked_story=='Add new story':
                     tasktm.add_story(story_name, story_description, str(sprint_id), tasktm.epic_by_name(epic_name).id,
-                                      str(story_points), objective_id =tasktm.objective_id_by_name(objective_id))
+                                      str(story_points), objective_id =objective_id)
                 else:
                     if tasktm.edit_story(story_id=st_id, story_name=story_name, story_description=story_description,
                                        sprint_id=str(sprint_id), epic_id=tasktm.epic_by_name(epic_name).id, story_point=str(story_points),
-                                         objective_id = tasktm.objective_id_by_name(objective_id)):
+                                         objective_id = objective_id):
                         tasktm.save()
                 st.success("Story was added")
                 time.sleep(2)

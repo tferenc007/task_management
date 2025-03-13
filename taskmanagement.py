@@ -105,7 +105,9 @@ class TaskManagement:
         return squeezed_stories
 
 
-    def add_objective(self, objective_name, objective_description, objective_due_date, is_life_goal, life_goal=False, selected_stories=None):
+    def __add_edit_objective__(self, objective_name, objective_description, objective_due_date, is_life_goal,
+                                life_goal=False, selected_stories=None, objective_id=0, edit=False):
+
         if is_life_goal:
             is_life_goal_text = 'yes'
             parent_obj = None
@@ -114,22 +116,80 @@ class TaskManagement:
             is_life_goal_text = 'no'
             parent_obj = self.objective_id_by_name(life_goal)
 
-        new_objective = {'objective_id': str(int(self.objectives_df['objective_id'].max())+1),
-                         'objective_name': objective_name,
-                         'is_life_goal': is_life_goal_text,
-                         'parent_object': str(parent_obj),
-                         'objective_description': objective_description,
-                         'due_pi': str(objective_due_date)
-                         }
-        self.objectives_df = pd.concat([self.objectives_df, pd.DataFrame([new_objective])], ignore_index=True)
+        if edit:
+            self.objectives_df.loc[self.objectives_df['objective_id'] == objective_id, ['objective_name', 'objective_description', 'due_pi', 'is_life_goal', 'parent_object']] = [
+            objective_name, objective_description, objective_due_date, is_life_goal_text, str(parent_obj)]
+        else:
+            new_objective = {'objective_id':  str(int(self.objectives_df['objective_id'].apply(pd.to_numeric).max())+1),
+                            'objective_name': objective_name,
+                            'is_life_goal': is_life_goal_text,
+                            'parent_object': str(parent_obj),
+                            'objective_description': objective_description,
+                            'due_pi': str(objective_due_date)
+                            }
+            self.objectives_df = pd.concat([self.objectives_df, pd.DataFrame([new_objective])], ignore_index=True)
+
         conn = sq.connect('data/database.db')
         self.objectives_df.to_sql('objectives', conn, if_exists='replace', index=False)
         conn.close()
-        if selected_stories!=None and len(selected_stories)>0:
+        if edit==False:
+            if selected_stories!=None and len(selected_stories)>0:
+                for story_name in selected_stories:
+                    st_id = self.stories_df.loc[self.stories_df['name']==story_name, 'id'].values[0]
+                    self.edit_story(story_id=st_id, objective_id =new_objective["objective_id"])
+                self.save()
+        else:
+            # remove objectives from stories
+            self.stories_df.loc[self.stories_df['objective_id']==objective_id, 'objective_id'] = '0'
             for story_name in selected_stories:
                 st_id = self.stories_df.loc[self.stories_df['name']==story_name, 'id'].values[0]
-                self.edit_story(story_id=st_id, objective_id =new_objective["objective_id"])
+                self.edit_story(story_id=st_id, objective_id =objective_id)
             self.save()
+
+    def edit_objective(self, objective_id, objective_name, objective_description=None, objective_due_date=None,
+                        is_life_goal=None, life_goal=False, selected_stories=None):
+        # find a objective
+        if self.__check_objective_uniqness__(objective_name, exception=objective_id):
+            self.__add_edit_objective__(objective_name, objective_description, objective_due_date, is_life_goal, life_goal, selected_stories, objective_id, edit=True)
+        else:
+            raise ValueError("Objective name must be unique.")
+     
+
+
+    def add_objective(self, objective_name, objective_description, objective_due_date, is_life_goal, life_goal=False, selected_stories=None):
+        if self.__check_objective_uniqness__(objective_name):
+            self.__add_edit_objective__(objective_name, objective_description, objective_due_date, is_life_goal, life_goal, selected_stories)
+        else:
+            raise ValueError("Objective name must be unique.")
+
+    def delete_objective(self, objective_id):
+        self.objectives_df = self.objectives_df.loc[self.objectives_df['objective_id']!=objective_id]
+        self.stories_df.loc[self.stories_df['objective_id']==objective_id, 'objective_id'] = '0'
+        self.save_df(self.stories_df, 'stories')
+        self.save_df(self.objectives_df, 'objectives')
+
+
+    def __check_objective_uniqness__(self, objective_name, exception=None):
+        if exception==None:
+            filtered_objectives = self.objectives_to_list('objective_name')
+        else:
+            filtered_objectives = self.objectives_to_list('objective_name', filter_by=f'objective_id!="{exception}"')
+
+        if objective_name in filtered_objectives:
+            return False
+        else:
+            return True
+        
+    def save_df(self, df, table_name):
+        conn = sq.connect('data/database.db')
+        df.to_sql(table_name, conn, if_exists='replace', index=False)
+        conn.close()
+
+
+    def get_stories_assigned_to_obj(self, objective_name):
+        objective_id = self.objective_id_by_name(objective_name)
+        return self.stories_to_list('name', filter_by=f'objective_id=="{objective_id}"')
+    
     def last_activity(self, start_date, end_date):
         first_iteration = True
         l_activity = None
@@ -207,10 +267,43 @@ class TaskManagement:
                 self.save()
         # create a new story
         pass
-    def edit_story(self, story_id, story_name=None, story_description=None, sprint_id=None, epic_id=None, story_point=None, objective_id ='0'):
+    def edit_story(self, story_id, story_name=None, story_description=None, sprint_id=None, epic_id=None, story_point=None, objective_id =None):
         
+        # current_story = self.stories_df[self.stories_df['id']==story_id]
+        # if current_story.empty:
+        #      story_found = False
+        # else:
+        #     story_found = True
+        #     if story_name!=None:
+        #         new_story_name = current_story['story_name'].values[0]
+        #     else:
+        #         new_story_name = story_name
+        #     if story_description!=None:
+        #         new_story_description = current_story['story_description'].values[0]
+        #     else:
+        #         new_story_description = story_description
+        #     if sprint_id!=None:
+        #         new_sprint_id = current_story['sprint_id'].values[0]
+        #     else:
+        #         new_sprint_id = sprint_id
+        #     if epic_id!=None:
+        #         new_epic_id = current_story['epic_id'].values[0]
+        #     else:
+        #         new_epic_id = epic_id
+        #     if story_point!=None:
+        #         new_story_point = current_story['story_point'].values[0]
+        #     else:
+        #         new_story_point = story_point
+        #     if objective_id!=None:
+        #         new_objective_id = current_story['objective_id'].values[0]
+        #     else:
+        #         new_objective_id = objective_id
+        #         # find a story      
+        #         # 
+        # self.stories_df.loc[self.stories_df['id'] == story_id, ['name', 'description', 'sprint_id', 'epic_id', 'story_point', 'objective_id']] = [
+        #     new_story_name, new_story_description, new_sprint_id, new_epic_id, new_story_point, new_objective_id]
+        # self.save_df(self.stories_df, 'stories')
         story_found = False
-        # find a story       
         for epic in self.epics:
             for story in epic.stories:
                 if story.id==story_id:
@@ -240,20 +333,12 @@ class TaskManagement:
             epic_list = [epic.id for epic in self.epics]
         return epic_list
     
-    def objectives_to_list(self, field_name, is_life_goal=None):
-        if is_life_goal == None:
-            filtered_objectives = self.df_objectives
+    def objectives_to_list(self, field_name, is_life_goal=None, filter_by=None):
+        if filter_by == None:
+            return self.df_objectives[field_name].tolist()
         else:
-            filtered_objectives = self.df_objectives[self.df_objectives['is_life_goal']== is_life_goal]
-
-        
-
-        if field_name == 'name':
-            objective_list = [objective for objective in filtered_objectives['objective_name']]
-        elif field_name == 'id':
-            objective_list = [objective for objective in filtered_objectives['objective_id']]
-
-        return objective_list
+            filtered_df = self.df_objectives.query(filter_by)
+            return filtered_df[field_name].tolist()
     
 
     def stories_to_list(self, field_name, epic_id=None, filter_by=None):
@@ -286,13 +371,19 @@ class TaskManagement:
         elif field_name == 'id':
             tasks_list = [stor.id for stor in story.tasks]
         return tasks_list
+    def get_objective_by_name(self, objective_name):
+        
+        return self.df_objectives.query(f'objective_name=="{objective_name}"')
     
+
     def epic_by_name(self, epic_name):
         return [epic for epic in self.epics if epic.name == epic_name][0]
     
+
     def epic_by_id(self, epic_id):
         return [epic for epic in self.epics if epic.id == epic_id ][0]
     
+
     def story_by_name(self, story_name):
         stories = self.stories_squeeze()
         return [story for story in stories if story.name == story_name][0]
