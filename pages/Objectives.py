@@ -27,6 +27,8 @@ class Objectives():
             def_life_goals_index = 0
             def_assigned_objectives = []
             def_label = 'Add Objective'
+            def_ac_score=0
+            def_ac_type='task'
         else:
             picked_objective_obj = tasktm.get_objective_by_name(picked_objective)
             parent_id = picked_objective_obj['parent_object'].tolist()[0]
@@ -37,6 +39,8 @@ class Objectives():
             def_life_goals_index =  life_goals.index(picked_objective_obj_parent)
             def_assigned_objectives = tasktm.get_stories_assigned_to_obj(picked_objective)
             def_label = 'Edit Objective'
+            def_ac_score=int(picked_objective_obj['acceptance_criteria_score'].tolist()[0])
+            def_ac_type=picked_objective_obj['acceptance_criteria_type'].tolist()[0]
 
 
 
@@ -62,7 +66,10 @@ class Objectives():
                     else:
                         filter_query += ' and (objective_id == "0" or objective_id == "' + picked_objective_obj['objective_id'].tolist()[0] + '")'
                 story_from_pi = tasktm.stories_to_list('name', filter_by=filter_query)
+
                 selected_stories = st.multiselect('Assign story:', story_from_pi, default=def_assigned_objectives)
+                ac_score = str(st.number_input("Acceptance Criteria Score", value=def_ac_score))
+                ac_type = st.selectbox("Acceptance Criteria Type", ['task', 'story'], index=1 if def_ac_type == 'story' else 0)
                 is_life_goal = False
             submit_button = st.button(label=def_label)
             if picked_objective != 'New':
@@ -76,11 +83,12 @@ class Objectives():
 
             if submit_button:
                 if picked_objective == 'New':
-                    tasktm.add_objective(objective_name, objective_description, objective_due_date, is_life_goal, life_goal, selected_stories)
+                    tasktm.add_objective(objective_name, objective_description, objective_due_date, is_life_goal, life_goal, selected_stories, ac_score, ac_type)
                     tasktm.send_backup_if_prod()
                     st.success("Objective added successfully!")
                 else:
-                    tasktm.edit_objective(picked_objective_obj['objective_id'].tolist()[0], objective_name, objective_description, objective_due_date, is_life_goal, life_goal, selected_stories)
+                    tasktm.edit_objective(picked_objective_obj['objective_id'].tolist()[0], objective_name, objective_description, objective_due_date, is_life_goal, 
+                                          ac_score, ac_type, life_goal, selected_stories)
                     tasktm.send_backup_if_prod()
                     st.success("Objective updated successfully")
                 time.sleep(1)

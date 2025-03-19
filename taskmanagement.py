@@ -105,7 +105,7 @@ class TaskManagement:
         return squeezed_stories
 
 
-    def __add_edit_objective__(self, objective_name, objective_description, objective_due_date, is_life_goal,
+    def __add_edit_objective__(self, objective_name, objective_description, objective_due_date, is_life_goal, ac_score, ac_type,
                                 life_goal=False, selected_stories=None, objective_id=0, edit=False):
 
         if is_life_goal:
@@ -117,15 +117,18 @@ class TaskManagement:
             parent_obj = self.objective_id_by_name(life_goal)
 
         if edit:
-            self.objectives_df.loc[self.objectives_df['objective_id'] == objective_id, ['objective_name', 'objective_description', 'due_pi', 'is_life_goal', 'parent_object']] = [
-            objective_name, objective_description, objective_due_date, is_life_goal_text, str(parent_obj)]
+            self.objectives_df.loc[self.objectives_df['objective_id'] == objective_id, ['objective_name', 'objective_description', 'due_pi', 'is_life_goal',
+                                                                                         'parent_object', 'acceptance_criteria_score', 'acceptance_criteria_type']] = [
+            objective_name, objective_description, objective_due_date, is_life_goal_text, str(parent_obj), str(ac_score), str(ac_type)]
         else:
             new_objective = {'objective_id':  str(int(self.objectives_df['objective_id'].apply(pd.to_numeric).max())+1),
                             'objective_name': objective_name,
                             'is_life_goal': is_life_goal_text,
                             'parent_object': str(parent_obj),
                             'objective_description': objective_description,
-                            'due_pi': str(objective_due_date)
+                            'due_pi': str(objective_due_date),
+                            'acceptance_criteria_score': str(ac_score),
+                            'acceptance_criteria_type': str(ac_type)
                             }
             self.objectives_df = pd.concat([self.objectives_df, pd.DataFrame([new_objective])], ignore_index=True)
 
@@ -147,18 +150,18 @@ class TaskManagement:
             self.save()
 
     def edit_objective(self, objective_id, objective_name, objective_description=None, objective_due_date=None,
-                        is_life_goal=None, life_goal=False, selected_stories=None):
+                        is_life_goal=None, ac_score=0, ac_type='task', life_goal=False, selected_stories=None, ):
         # find a objective
         if self.__check_objective_uniqness__(objective_name, exception=objective_id):
-            self.__add_edit_objective__(objective_name, objective_description, objective_due_date, is_life_goal, life_goal, selected_stories, objective_id, edit=True)
+            self.__add_edit_objective__(objective_name, objective_description, objective_due_date, is_life_goal, ac_score, ac_type, life_goal, selected_stories, objective_id, edit=True)
         else:
             raise ValueError("Objective name must be unique.")
      
 
 
-    def add_objective(self, objective_name, objective_description, objective_due_date, is_life_goal, life_goal=False, selected_stories=None):
+    def add_objective(self, objective_name, objective_description, objective_due_date, is_life_goal,ac_score=0, ac_type='task', life_goal=False, selected_stories=None):  
         if self.__check_objective_uniqness__(objective_name):
-            self.__add_edit_objective__(objective_name, objective_description, objective_due_date, is_life_goal, life_goal, selected_stories)
+            self.__add_edit_objective__(objective_name, objective_description, objective_due_date, is_life_goal, ac_score, ac_type, life_goal, selected_stories, ac_score, ac_type)
         else:
             raise ValueError("Objective name must be unique.")
 
