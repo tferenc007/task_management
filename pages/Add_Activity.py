@@ -182,6 +182,7 @@ class AddActivity():
                         sprint_selected = st.selectbox('Select Sprint', sprint_lists, key="change_sprint_key", index=sprint_index)
                         if sprint_selected != story_frame.sprint_id:
                             self.tasktm.edit_story(story_id=story_frame.id, sprint_id=sprint_selected)
+                            self.tasktm.save()
 
                             st.session_state.button_clicked = ''
                             self.__reasign_story__(st.session_state.current_sprint_selected)
