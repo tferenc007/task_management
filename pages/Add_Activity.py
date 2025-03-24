@@ -68,7 +68,7 @@ class AddActivity():
             story_description = st.text_area("Story Description")
             story_points = st.selectbox("Story Points", ["1",'3','5','8','13','21'])
             epic_id = self.tasktm.epic_by_name(epic_selected).id
-            objective_list = tasktm.objectives_to_list('name')
+            objective_list = tasktm.objectives_to_list('objective_name')
             objective_list.insert(0, 'No objective')
             objective_id = st.selectbox("Objective", objective_list)
             if st.button("Add Story"):
