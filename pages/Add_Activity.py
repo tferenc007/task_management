@@ -90,7 +90,12 @@ class AddActivity():
 
         for story_frame in  st.session_state.stories:          
             frame_bool = st.session_state.story_frame_status[f"frame_key_{story_frame.id}"]
-            with st.expander(story_frame.name, expanded=frame_bool):
+            if story_frame.is_completed:
+                formated_story_frame_name = rf"✅ :green[{story_frame.name}]"
+            else :
+                formated_story_frame_name = story_frame.name
+
+            with st.expander(formated_story_frame_name, expanded=frame_bool):
                     st.write(f'Desc:{story_frame.description}')
                     objective_name = tasktm.df_objectives[tasktm.df_objectives['objective_id']==story_frame.objective_id]
                     if not objective_name.empty:
@@ -209,9 +214,11 @@ class AddActivity():
     def __reasign_story__(self, filter):
         if filter=='All':
             st.session_state.stories = [story for story in self.tasktm.stories_squeeze() if story.epic_id in st.session_state.epic_list]
+            st.session_state.stories = sorted (st.session_state.stories, key=lambda x: x.is_completed)
         else:
             st.session_state.stories = [story for story in self.tasktm.stories_squeeze() if story.epic_id in st.session_state.epic_list
             and story.sprint_id==st.session_state.current_sprint_selected]
+            st.session_state.stories = sorted (st.session_state.stories, key=lambda x: x.is_completed)
     
 
     def story_frame_status(self, stories, story_id):
