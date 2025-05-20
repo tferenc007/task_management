@@ -142,7 +142,7 @@ class TaskManagement:
                 self.save()
         else:
             # remove objectives from stories
-            self.stories_df.loc[self.stories_df['objective_id']==objective_id, 'objective_id'] = '0'
+            # self.stories_df.loc[self.stories_df['objective_id']==objective_id, 'objective_id'] = '0'
             for story_name in selected_stories:
                 st_id = self.stories_df.loc[self.stories_df['name']==story_name, 'id'].values[0]
                 self.edit_story(story_id=st_id, objective_id =objective_id)
