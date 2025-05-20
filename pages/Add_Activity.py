@@ -189,7 +189,6 @@ class AddActivity():
                         duplicate_sprint = st.checkbox("Duplicate the sprint", value=False)
                         if duplicate_sprint:
                             change_sprint_label = 'Duplicate Sprint to'
-                            def_assigned_objectives = [story_frame.sprint_id]
                             sprint_selected = st.multiselect('Assign story:', sprint_lists)
                         else:
                             change_sprint_label = 'Select Sprint'

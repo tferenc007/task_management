@@ -65,9 +65,10 @@ class Objectives():
                         filter_query += ' and objective_id == "0"'
                     else:
                         filter_query += ' and (objective_id == "0" or objective_id == "' + picked_objective_obj['objective_id'].tolist()[0] + '")'
-                story_from_pi = tasktm.stories_to_list('name', filter_by=filter_query)
+                story_from_pi = tasktm.stories_to_list('both', filter_by=filter_query)
 
                 selected_stories = st.multiselect('Assign story:', story_from_pi, default=def_assigned_objectives)
+                selected_stories_id = [tasktm.get_story_id_by_name(story) for story in selected_stories]
                 ac_score = str(st.number_input("Acceptance Criteria Score", value=def_ac_score))
                 ac_type = st.selectbox("Acceptance Criteria Type", ['task', 'story'], index=1 if def_ac_type == 'story' else 0)
                 is_life_goal = False
@@ -85,12 +86,12 @@ class Objectives():
                 if picked_objective == 'New':
                     tasktm.add_objective(objective_name=objective_name, objective_description=objective_description, objective_due_date=objective_due_date, 
                                          is_life_goal=is_life_goal, life_goal=life_goal, 
-                                         selected_stories=selected_stories, ac_score=ac_score, ac_type=ac_type)
+                                         selected_stories=selected_stories_id, ac_score=ac_score, ac_type=ac_type)
                     tasktm.send_backup_if_prod()
                     st.success("Objective added successfully!")
                 else:
                     tasktm.edit_objective(picked_objective_obj['objective_id'].tolist()[0], objective_name, objective_description, objective_due_date, is_life_goal, 
-                                          ac_score, ac_type, life_goal, selected_stories)
+                                          ac_score, ac_type, life_goal, selected_stories_id)
                     tasktm.send_backup_if_prod()
                     st.success("Objective updated successfully")
                 time.sleep(1)

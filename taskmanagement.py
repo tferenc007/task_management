@@ -136,14 +136,12 @@ class TaskManagement:
         conn.close()
         if edit==False:
             if selected_stories!=None and len(selected_stories)>0:
-                for story_name in selected_stories:
-                    st_id = self.stories_df.loc[self.stories_df['name']==story_name, 'id'].values[0]
+                for st_id in selected_stories:
                     self.edit_story(story_id=st_id, objective_id =new_objective["objective_id"])
         else:
             # remove objectives from stories
             # self.stories_df.loc[self.stories_df['objective_id']==objective_id, 'objective_id'] = '0'
-            for story_name in selected_stories:
-                st_id = self.stories_df.loc[self.stories_df['name']==story_name, 'id'].values[0]
+            for st_id in selected_stories:
                 self.edit_story(story_id=st_id, objective_id =objective_id)
 
 
@@ -236,10 +234,18 @@ class TaskManagement:
         df.to_sql(table_name, conn, if_exists='replace', index=False)
         conn.close()
 
-
+    def get_story_id_by_name(self, story_name):
+        #extract from story_name id for example story name =  'Take a Ride (123)'
+        match = re.search(r'\((.*?)\)', story_name)
+        if match:
+            story_id = match.group(1)
+            return str(story_id)
+        else:
+            return None
+    
     def get_stories_assigned_to_obj(self, objective_name):
         objective_id = self.objective_id_by_name(objective_name)
-        return self.stories_to_list('name', filter_by=f'objective_id=="{objective_id}"')
+        return self.stories_to_list('both', filter_by=f'objective_id=="{objective_id}"')
     
     def last_activity(self, start_date, end_date):
         first_iteration = True
@@ -322,8 +328,6 @@ class TaskManagement:
         
         current_story = self.stories_df[self.stories_df['id']==story_id]
         if current_story.empty == False:
-            
-
             if story_name==None:
                 new_story_name = current_story['name'].values[0]
             else:
@@ -382,17 +386,27 @@ class TaskManagement:
                     story_list = [story.name for story in all_stories]
                 elif field_name == 'id':
                     story_list = [story.id for story in all_stories]
+                elif field_name =='both':
+                    story_list = [f'{story.name} ({story.id})'  for story in all_stories]
             else:
                 ep = [epic for epic in self.epics if epic.id == epic_id][0]
                 if field_name == 'name':
                     story_list = [story.name for story in ep.stories]
                 elif field_name == 'id':
                     story_list = [story.id for story in ep.stories]
+                elif field_name =='both':
+                    story_list = [f'{story.name} ({story.id})'  for story in ep.stories]
             return story_list
         else:
             # new definition story to list
-            filtered_df = self.df_stories.query(filter_by)
-            return filtered_df[field_name].tolist()
+            if field_name == 'both':
+                filtered_df = self.df_stories.query(filter_by)
+                story_list = filtered_df.apply(lambda row: f"{row['name']} ({row['id']})", axis=1).tolist()
+            else:
+                filtered_df = self.df_stories.query(filter_by)
+                story_list = filtered_df[field_name].tolist()
+               
+            return story_list
     def tasks_to_list(self, field_name, story_id):
         
         all_stories = self.stories_squeeze()
