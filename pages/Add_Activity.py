@@ -186,12 +186,22 @@ class AddActivity():
                         sprint_lists = self.tasktm.dic_sprint.keys()
                         sprint_lists = list(sprint_lists)
                         sprint_index = sprint_lists.index(story_frame.sprint_id)
-
-                        sprint_selected = st.selectbox('Select Sprint', sprint_lists, key="change_sprint_key", index=sprint_index)
-                        if sprint_selected != story_frame.sprint_id:
+                        duplicate_sprint = st.checkbox("Duplicate the sprint", value=False)
+                        if duplicate_sprint:
+                            change_sprint_label = 'Duplicate Sprint to'
+                        else:
+                            change_sprint_label = 'Select Sprint'
+                        sprint_selected = st.selectbox(change_sprint_label, sprint_lists, key="change_sprint_key", index=sprint_index)
+                        if sprint_selected != story_frame.sprint_id and duplicate_sprint==False:
                             self.tasktm.edit_story(story_id=story_frame.id, sprint_id=sprint_selected)
                             self.tasktm.save()
-
+                            
+                            st.session_state.button_clicked = ''
+                            self.__reasign_story__(st.session_state.current_sprint_selected)
+                            self.__story_frame_to_false__()
+                            st.rerun()
+                        elif sprint_selected != story_frame.sprint_id and duplicate_sprint==True:
+                            sth = self.tasktm.duplicate_story(source_story_id=story_frame.id, destination_sprint_id=sprint_selected)
                             st.session_state.button_clicked = ''
                             self.__reasign_story__(st.session_state.current_sprint_selected)
                             self.__story_frame_to_false__()
