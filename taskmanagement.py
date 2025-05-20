@@ -159,46 +159,46 @@ class TaskManagement:
 
     def duplicate_story(self, source_story_id, destination_sprint_id):
         # Find the story in the DataFrame
-        source_story = self.stories_df[self.stories_df['id'] == source_story_id]
+        for sp_id in destination_sprint_id:
 
-       
-        if not source_story.empty:
-            # Create a new story with the same attributes
-            new_story = source_story.copy()
-        #     print('1----')
-            new_story['id'] = str(int(self.stories_df['id'].apply(pd.to_numeric).max()) + 1)
-       
-            new_story['est_start_date'] = self.dic_sprint[destination_sprint_id]['sprint_start_date']
-            new_story['est_end_date'] = self.dic_sprint[destination_sprint_id]['sprint_end_date']
-            new_story['sprint_id'] = str(destination_sprint_id)
-        #     print('2----')
-            # Append the new story to the DataFrame
-            self.stories_df = pd.concat([self.stories_df, new_story], ignore_index=True)
-            # Find the tasks associated with the source story
-            source_tasks = self.tasks_df[self.tasks_df['story_id'] == source_story_id]
-            max_task_id = int(self.tasks_df['id'].apply(pd.to_numeric).max())
-        #     # Create new tasks with the same attributes
+            source_story = self.stories_df[self.stories_df['id'] == source_story_id]
+            if not source_story.empty:
+                # Create a new story with the same attributes
+                new_story = source_story.copy()
+            #     print('1----')
+                new_story['id'] = str(int(self.stories_df['id'].apply(pd.to_numeric).max()) + 1)
+        
+                new_story['est_start_date'] = self.dic_sprint[sp_id]['sprint_start_date']
+                new_story['est_end_date'] = self.dic_sprint[sp_id]['sprint_end_date']
+                new_story['sprint_id'] = str(sp_id)
+            #     print('2----')
+                # Append the new story to the DataFrame
+                self.stories_df = pd.concat([self.stories_df, new_story], ignore_index=True)
+                # Find the tasks associated with the source story
+                source_tasks = self.tasks_df[self.tasks_df['story_id'] == source_story_id]
+                max_task_id = int(self.tasks_df['id'].apply(pd.to_numeric).max())
+            #     # Create new tasks with the same attributes
 
-            for  _,task in source_tasks.iterrows():
+                for  _,task in source_tasks.iterrows():
+                    
+                    new_task = task.copy()
+                    max_task_id += 1
+
+                    new_task['id'] = str(max_task_id)
+                    new_task['story_id'] = str(new_story['id'].values[0])
+                    new_task['estimate_date'] = 'None'
+                    new_task['is_completed'] = 'false'
+                    new_task['is_cancelled'] = 'false'
+                    new_task['complitation_date'] = 'None'
+                    new_task_df = pd.DataFrame([new_task])[self.tasks_df.columns]
+
+                    # # Append the new task to the DataFrame
+                    # print(new_task)
+                    self.tasks_df = pd.concat([self.tasks_df, new_task_df], ignore_index=True)
+
                 
-                new_task = task.copy()
-                max_task_id += 1
-
-                new_task['id'] = str(max_task_id)
-                new_task['story_id'] = str(new_story['id'].values[0])
-                new_task['estimate_date'] = 'None'
-                new_task['is_completed'] = 'false'
-                new_task['is_cancelled'] = 'false'
-                new_task['complitation_date'] = 'None'
-                new_task_df = pd.DataFrame([new_task])[self.tasks_df.columns]
-
-                # # Append the new task to the DataFrame
-                # print(new_task)
-                self.tasks_df = pd.concat([self.tasks_df, new_task_df], ignore_index=True)
-
-            
-        self.save_df(self.stories_df, 'stories')
-        self.save_df(self.tasks_df, 'tasks')
+            self.save_df(self.stories_df, 'stories')
+            self.save_df(self.tasks_df, 'tasks')
         return True
     
     def add_objective(self, objective_name, objective_description, objective_due_date, is_life_goal,ac_score=0, ac_type='task', life_goal=False, selected_stories=None):  

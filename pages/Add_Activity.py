@@ -189,10 +189,13 @@ class AddActivity():
                         duplicate_sprint = st.checkbox("Duplicate the sprint", value=False)
                         if duplicate_sprint:
                             change_sprint_label = 'Duplicate Sprint to'
+                            def_assigned_objectives = [story_frame.sprint_id]
+                            sprint_selected = st.multiselect('Assign story:', sprint_lists)
                         else:
                             change_sprint_label = 'Select Sprint'
-                        sprint_selected = st.selectbox(change_sprint_label, sprint_lists, key="change_sprint_key", index=sprint_index)
-                        if sprint_selected != story_frame.sprint_id and duplicate_sprint==False:
+                            sprint_selected = st.selectbox(change_sprint_label, sprint_lists, key="change_sprint_key", index=sprint_index)
+                        
+                        if sprint_selected != story_frame.sprint_id and duplicate_sprint==False and st.button("Apply", key=f'apply_sprint_button{story_frame.id}'):
                             self.tasktm.edit_story(story_id=story_frame.id, sprint_id=sprint_selected)
                             self.tasktm.save()
                             
@@ -200,7 +203,7 @@ class AddActivity():
                             self.__reasign_story__(st.session_state.current_sprint_selected)
                             self.__story_frame_to_false__()
                             st.rerun()
-                        elif sprint_selected != story_frame.sprint_id and duplicate_sprint==True:
+                        elif sprint_selected != story_frame.sprint_id and duplicate_sprint==True  and st.button("Apply", key=f'apply_sprint_button{story_frame.id}'):
                             sth = self.tasktm.duplicate_story(source_story_id=story_frame.id, destination_sprint_id=sprint_selected)
                             st.session_state.button_clicked = ''
                             self.__reasign_story__(st.session_state.current_sprint_selected)
