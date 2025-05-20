@@ -139,14 +139,13 @@ class TaskManagement:
                 for story_name in selected_stories:
                     st_id = self.stories_df.loc[self.stories_df['name']==story_name, 'id'].values[0]
                     self.edit_story(story_id=st_id, objective_id =new_objective["objective_id"])
-                self.save()
         else:
             # remove objectives from stories
             # self.stories_df.loc[self.stories_df['objective_id']==objective_id, 'objective_id'] = '0'
             for story_name in selected_stories:
                 st_id = self.stories_df.loc[self.stories_df['name']==story_name, 'id'].values[0]
                 self.edit_story(story_id=st_id, objective_id =objective_id)
-            self.save()
+
 
     def edit_objective(self, objective_id, objective_name, objective_description=None, objective_due_date=None,
                         is_life_goal=None, ac_score=0, ac_type='task', life_goal=False, selected_stories=None, ):
@@ -321,58 +320,40 @@ class TaskManagement:
         pass
     def edit_story(self, story_id, story_name=None, story_description=None, sprint_id=None, epic_id=None, story_point=None, objective_id =None):
         
-        # current_story = self.stories_df[self.stories_df['id']==story_id]
-        # if current_story.empty:
-        #      story_found = False
-        # else:
-        #     story_found = True
-        #     if story_name!=None:
-        #         new_story_name = current_story['story_name'].values[0]
-        #     else:
-        #         new_story_name = story_name
-        #     if story_description!=None:
-        #         new_story_description = current_story['story_description'].values[0]
-        #     else:
-        #         new_story_description = story_description
-        #     if sprint_id!=None:
-        #         new_sprint_id = current_story['sprint_id'].values[0]
-        #     else:
-        #         new_sprint_id = sprint_id
-        #     if epic_id!=None:
-        #         new_epic_id = current_story['epic_id'].values[0]
-        #     else:
-        #         new_epic_id = epic_id
-        #     if story_point!=None:
-        #         new_story_point = current_story['story_point'].values[0]
-        #     else:
-        #         new_story_point = story_point
-        #     if objective_id!=None:
-        #         new_objective_id = current_story['objective_id'].values[0]
-        #     else:
-        #         new_objective_id = objective_id
-        #         # find a story      
-        #         # 
-        # self.stories_df.loc[self.stories_df['id'] == story_id, ['name', 'description', 'sprint_id', 'epic_id', 'story_point', 'objective_id']] = [
-        #     new_story_name, new_story_description, new_sprint_id, new_epic_id, new_story_point, new_objective_id]
-        # self.save_df(self.stories_df, 'stories')
-        story_found = False
-        for epic in self.epics:
-            for story in epic.stories:
-                if story.id==story_id:
-                    story_found = True
-                    if story_name!=None:
-                        story.name = story_name
-                    if story_description!=None:                        
-                        story.description = story_description
-                    if sprint_id!=None:
-                        story.sprint_id = sprint_id
-                    if epic_id!=None:
-                        story.epic_id = epic_id
-                    if story_point!=None:
-                        story.story_point = story_point
-                    if objective_id!=None:
-                        story.objective_id = objective_id
-        return story_found
+        current_story = self.stories_df[self.stories_df['id']==story_id]
+        if current_story.empty == False:
+            
+
+            if story_name==None:
+                new_story_name = current_story['name'].values[0]
+            else:
+                new_story_name = story_name
+            if story_description==None:
+                new_story_description = current_story['description'].values[0]
+            else:
+                new_story_description = story_description
+            if sprint_id==None:
+                new_sprint_id = current_story['sprint_id'].values[0]
+            else:
+                new_sprint_id = sprint_id
+            if epic_id==None:
+                new_epic_id = current_story['epic_id'].values[0]
+            else:
+                new_epic_id = epic_id
+            if story_point==None:
+                new_story_point = current_story['story_point'].values[0]
+            else:
+                new_story_point = story_point
+            if objective_id==None:
+                new_objective_id = current_story['objective_id'].values[0]
+            else:
+                new_objective_id = objective_id
+
+        self.stories_df.loc[self.stories_df['id'] == story_id, ['name', 'description', 'sprint_id', 'epic_id', 'story_point', 'objective_id']] = [
+            new_story_name, new_story_description, new_sprint_id, new_epic_id, new_story_point, new_objective_id]
+        self.save_df(self.stories_df, 'stories')
+        
+        return True
         
     def add_epic(self, epic):
         # create a new epic
