@@ -83,7 +83,9 @@ class Objectives():
 
             if submit_button:
                 if picked_objective == 'New':
-                    tasktm.add_objective(objective_name, objective_description, objective_due_date, is_life_goal, life_goal, selected_stories, ac_score, ac_type)
+                    tasktm.add_objective(objective_name=objective_name, objective_description=objective_description, objective_due_date=objective_due_date, 
+                                         is_life_goal=is_life_goal, life_goal=life_goal, 
+                                         selected_stories=selected_stories, ac_score=ac_score, ac_type=ac_type)
                     tasktm.send_backup_if_prod()
                     st.success("Objective added successfully!")
                 else:

@@ -107,7 +107,6 @@ class TaskManagement:
 
     def __add_edit_objective__(self, objective_name, objective_description, objective_due_date, is_life_goal, ac_score, ac_type,
                                 life_goal=False, selected_stories=None, objective_id=0, edit=False):
-
         if is_life_goal:
             is_life_goal_text = 'yes'
             parent_obj = None
@@ -160,8 +159,15 @@ class TaskManagement:
 
 
     def add_objective(self, objective_name, objective_description, objective_due_date, is_life_goal,ac_score=0, ac_type='task', life_goal=False, selected_stories=None):  
+
+# objective_name, objective_description, objective_due_date, is_life_goal, ac_score, ac_type,
+#                                 life_goal=False, selected_stories=None, objective_id=0, edit=False)
+
+        # print(objective_name, objective_description, objective_due_date, is_life_goal,ac_score, ac_type, life_goal, selected_stories)
         if self.__check_objective_uniqness__(objective_name):
-            self.__add_edit_objective__(objective_name, objective_description, objective_due_date, is_life_goal, ac_score, ac_type, life_goal, selected_stories, ac_score, ac_type)
+            self.__add_edit_objective__(objective_name=objective_name, objective_description=objective_description, objective_due_date=objective_due_date, 
+                                        is_life_goal=is_life_goal, ac_score=ac_score, ac_type=ac_type,
+                                        life_goal=life_goal, selected_stories=selected_stories)
         else:
             raise ValueError("Objective name must be unique.")
 
