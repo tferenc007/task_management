@@ -167,6 +167,9 @@ class TaskManagement:
             new_story = source_story.copy()
         #     print('1----')
             new_story['id'] = str(int(self.stories_df['id'].apply(pd.to_numeric).max()) + 1)
+       
+            new_story['est_start_date'] = self.dic_sprint[destination_sprint_id]['sprint_start_date']
+            new_story['est_end_date'] = self.dic_sprint[destination_sprint_id]['sprint_end_date']
             new_story['sprint_id'] = str(destination_sprint_id)
         #     print('2----')
             # Append the new story to the DataFrame
