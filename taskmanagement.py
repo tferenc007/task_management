@@ -338,8 +338,13 @@ class TaskManagement:
                 new_story_description = story_description
             if sprint_id==None:
                 new_sprint_id = current_story['sprint_id'].values[0]
+                est_start_date = self.dic_sprint[new_sprint_id]['sprint_start_date']
+                est_end_date = self.dic_sprint[new_sprint_id]['sprint_end_date']
+
             else:
                 new_sprint_id = sprint_id
+                est_start_date = self.dic_sprint[new_sprint_id]['sprint_start_date']
+                est_end_date = self.dic_sprint[new_sprint_id]['sprint_end_date']
             if epic_id==None:
                 new_epic_id = current_story['epic_id'].values[0]
             else:
@@ -353,8 +358,8 @@ class TaskManagement:
             else:
                 new_objective_id = objective_id
 
-        self.stories_df.loc[self.stories_df['id'] == story_id, ['name', 'description', 'sprint_id', 'epic_id', 'story_point', 'objective_id']] = [
-            new_story_name, new_story_description, new_sprint_id, new_epic_id, new_story_point, new_objective_id]
+        self.stories_df.loc[self.stories_df['id'] == story_id, ['name', 'description','est_start_date','est_end_date', 'sprint_id', 'epic_id', 'story_point', 'objective_id']] = [
+            new_story_name, new_story_description, est_start_date, est_end_date, new_sprint_id, new_epic_id, new_story_point, new_objective_id]
         self.save_df(self.stories_df, 'stories')
         
         return True
