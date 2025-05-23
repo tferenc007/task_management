@@ -154,6 +154,17 @@ class TaskManagement:
             raise ValueError("Objective name must be unique.")
      
 
+    def get_default_ac_score(self,stories, type='story'):
+
+        if type=='story':
+            selected_stories = self.stories_df[self.stories_df['id'].isin(stories)]
+            ac_score = selected_stories['story_point'].apply(pd.to_numeric).sum()
+        elif type=='task':
+            selected_tasks = self.tasks_df[self.tasks_df['story_id'].isin(stories)]
+            ac_score = selected_tasks['story_id'].apply(pd.to_numeric).count()
+        return ac_score
+    
+
     def duplicate_story(self, source_story_id, destination_sprint_id):
         # Find the story in the DataFrame
         for sp_id in destination_sprint_id:

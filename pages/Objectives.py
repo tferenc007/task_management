@@ -69,8 +69,13 @@ class Objectives():
 
                 selected_stories = st.multiselect('Assign story:', story_from_pi, default=def_assigned_objectives)
                 selected_stories_id = [tasktm.get_story_id_by_name(story) for story in selected_stories]
-                ac_score = str(st.number_input("Acceptance Criteria Score", value=def_ac_score))
                 ac_type = st.selectbox("Acceptance Criteria Type", ['task', 'story'], index=1 if def_ac_type == 'story' else 0)
+                if st.button('Caluclate AC score'):
+                    if ac_type == 'task':
+                        def_ac_score = tasktm.get_default_ac_score(stories=selected_stories_id, type='task')
+                    else:
+                        def_ac_score = tasktm.get_default_ac_score(stories=selected_stories_id, type='story')
+                ac_score = str(st.number_input("Acceptance Criteria Score", value=def_ac_score))
                 is_life_goal = False
             submit_button = st.button(label=def_label)
             if picked_objective != 'New':
