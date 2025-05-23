@@ -11,6 +11,10 @@ class Objectives():
     def __init__(self):
 
         st.title("Add New Objective")
+        if 'ac_score' not in st.session_state:
+            st.session_state.ac_score = 0
+
+
 
         sorted_unique_pi_ids = tasktm.sorted_unique_pi_ids()
         current_pi_index = sorted_unique_pi_ids.index(tasktm.get_current_sprint_pi_id(sprint_pi='pi'))
@@ -74,12 +78,17 @@ class Objectives():
                 ac_type = st.selectbox("Acceptance Criteria Type", ['task', 'story'], index=1 if def_ac_type == 'story' else 0)
                 if st.button('Caluclate AC score'):
                     if ac_type == 'task':
-                        def_ac_score = tasktm.get_default_ac_score(stories=selected_stories_id, type='task')
+                        st.session_state.ac_score = tasktm.get_default_ac_score(stories=selected_stories_id, type='task')
                     else:
-                        def_ac_score = tasktm.get_default_ac_score(stories=selected_stories_id, type='story')
-                ac_score = str(st.number_input("Acceptance Criteria Score", value=def_ac_score))
+                        st.session_state.ac_score = tasktm.get_default_ac_score(stories=selected_stories_id, type='story')
+                if  st.session_state.ac_score != 0:
+                    ac_score = str(st.number_input("Acceptance Criteria Score", value=st.session_state.ac_score))
+                else:
+                    ac_score = str(st.number_input("Acceptance Criteria Score", value=def_ac_score))
+                    
                 is_life_goal = False
             submit_button = st.button(label=def_label)
+            
             if picked_objective != 'New':
                 delete_button = st.button(label='Delete Objective')
                 if delete_button:
@@ -95,13 +104,14 @@ class Objectives():
                                          is_life_goal=is_life_goal, life_goal=life_goal, 
                                          selected_stories=selected_stories_id, ac_score=ac_score, ac_type=ac_type)
                     tasktm.send_backup_if_prod()
+                    st.session_state.ac_score = 0
                     st.success("Objective added successfully!")
                 else:
                     tasktm.edit_objective(picked_objective_obj['objective_id'].tolist()[0], objective_name, objective_description, objective_due_date, is_life_goal, 
                                           ac_score, ac_type, life_goal, selected_stories_id)
                     tasktm.send_backup_if_prod()
                     st.success("Objective updated successfully")
-                time.sleep(1)
+                st.session_state.ac_score = 0
                 st.rerun()
 
 
