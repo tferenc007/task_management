@@ -92,7 +92,12 @@ class Edit():
             story_est_end_date = st.date_input("Est End Date", value=sprint_end_date, disabled=True)
             objective_list = tasktm.objectives_to_list('objective_name', filter_by='is_life_goal=="no"')
             objective_list.insert(0, 'No objective')
-            objective_id = st.selectbox("Objective", objective_list, index=int(picked_story_obj.objective_id))
+
+            obj_name = tasktm.df_objectives.query(f'objective_id=="{picked_story_obj.objective_id}"')[['objective_name']]
+            obj_name = obj_name['objective_name'].tolist()[0]
+            objective_index = objective_list.index(obj_name)
+            
+            objective_id = st.selectbox("Objective", objective_list, index=int(objective_index))
             if objective_id=='No objective':
                 objective_id = '0'
             else:
