@@ -94,7 +94,10 @@ class Edit():
             objective_list.insert(0, 'No objective')
 
             obj_name = tasktm.df_objectives.query(f'objective_id=="{picked_story_obj.objective_id}"')[['objective_name']]
-            obj_name = obj_name['objective_name'].tolist()[0]
+            if obj_name.empty:
+                obj_name = 'No objective'
+            else:
+                obj_name = obj_name['objective_name'].tolist()[0]
             objective_index = objective_list.index(obj_name)
             
             objective_id = st.selectbox("Objective", objective_list, index=int(objective_index))
