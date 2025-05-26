@@ -253,6 +253,15 @@ class TaskManagement:
             return str(story_id)
         else:
             return None
+        
+    def extract_task_id_by_name(self, task_name):
+        #extract from task_name id for example task name =  'Take a Ride (123)'
+        match = re.search(r'\((.*?)\)', task_name)
+        if match:
+            task_id = match.group(1)
+            return str(task_id)
+        else:
+            return None
     
     def get_stories_assigned_to_obj(self, objective_name):
         objective_id = self.objective_id_by_name(objective_name)
@@ -450,6 +459,10 @@ class TaskManagement:
     def story_by_name(self, story_name):
         stories = self.stories_squeeze()
         return [story for story in stories if story.name == story_name][0]
+    
+    def story_by_id(self, story_id):
+        stories = self.stories_squeeze()
+        return [story for story in stories if story.id == story_id][0]
         
     def save(self):
 

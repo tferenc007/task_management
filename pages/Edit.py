@@ -51,13 +51,13 @@ class Edit():
 
             ep = tasktm.epic_by_name(selected_epic)
             ep_id = ep.id
-            story_list = tasktm.stories_to_list('name',ep_id)
+            story_list = tasktm.stories_to_list('both',ep_id)
     
         else:
-            story_list = tasktm.stories_to_list('name')       
+            story_list = tasktm.stories_to_list('both')       
         story_list.insert(0,'Add new story')
-      
         picked_story = st.selectbox("Pick the story",story_list) 
+
         st.write('-------------------')
         if picked_story=='Add new story':
             epic_name = st.selectbox("Epic Name",epic_list_origin, key='edit_story_epic_name')
@@ -73,7 +73,8 @@ class Edit():
             objective_list.insert(0, 'No objective')
             objective_id = st.selectbox("Objective", objective_list)
         else:
-            picked_story_obj =  [story for story in tasktm.stories_squeeze() if story.name == picked_story][0]
+            picked_story_id =tasktm.get_story_id_by_name(picked_story)
+            picked_story_obj =  [story for story in tasktm.stories_squeeze() if story.id == picked_story_id][0]
             ep_id = picked_story_obj.epic_id
             epic = tasktm.epic_by_id(ep_id)
             st_id = picked_story_obj.id
@@ -145,10 +146,10 @@ class Edit():
 
             ep = tasktm.epic_by_name(selected_epic)
             ep_id = ep.id
-            story_list = tasktm.stories_to_list('name',ep_id)
+            story_list = tasktm.stories_to_list('both',ep_id)
     
         else:
-            story_list = tasktm.stories_to_list('name')       
+            story_list = tasktm.stories_to_list('both')       
         story_list.insert(0,'All Stories')
 
         if len(story_list)>0:
@@ -160,9 +161,10 @@ class Edit():
                     task_list = [task.name for task in st_]
                 else:
                     st_ = []
-                    st_.append(tasktm.story_by_name(selected_story))
+                    st_id = tasktm.get_story_id_by_name(selected_story)
+                    st_.append(tasktm.story_by_id(st_id))
                     tasks = st_[0].tasks
-                    task_list = [task.name for task in tasks]
+                    task_list = [f'{task.name} ({task.id})' for task in tasks]
             else:
                 if selected_story=='All Stories':
                     st_ = tasktm.stories_squeeze()
@@ -173,17 +175,18 @@ class Edit():
                         for task in story.tasks:
                             tasks.append(task)
 
-                    task_list = [task.name for task in tasks]
+                    task_list = [f'{task.name} ({task.id})' for task in tasks]
                 else:
                     st_ = []
-                    st_.append(tasktm.story_by_name(selected_story))
+                    st_id = tasktm.get_story_id_by_name(selected_story)
+                    st_.append(tasktm.story_by_id(st_id))
                     tasks = st_[0].tasks
-                    task_list = [task.name for task in tasks]
+                    task_list = [f'{task.name} ({task.id})' for task in tasks]
 
 
             task_list.insert(0,'Add new task')
             picked_task = st.selectbox('Pick the task',task_list) 
-
+            
 
             if picked_task=='Add new task':
                 task_name = st.text_input("Task Name")
@@ -195,7 +198,8 @@ class Edit():
                 task_is_cancelled= st.checkbox("Is cancelled", value=False)
 
             else:
-                picked_task_obj = [task for task in tasks if task.name == picked_task][0]
+                picked_task_id = tasktm.extract_task_id_by_name(picked_task)
+                picked_task_obj = [task for task in tasks if task.id == picked_task_id][0]
                 st_id = picked_task_obj.story_id
                 task_name = st.text_input("Task Name", value=picked_task_obj.name)
                 task_estimation_date = st.date_input("Estimate Date", value=picked_task_obj.estimate_date)
