@@ -8,14 +8,15 @@ import imaplib
 import email
 from email.header import decode_header
 import os
+import streamlit as st
 
 host = "smtp.gmail.com"
 port = 465
 
 context = ssl.create_default_context()
-username = os.environ.get('EMAIL_USERNAME')  # np. 'app.tferenc@gmail.com'
-password = os.environ.get('EMAIL_PASSWORD')  # Gmail App Password (16 znaków, bez spacji)
-receiver = os.environ.get('EMAIL_RECEIVER')  # np. 'ferenc.tomasz007@gmail.com'
+username = st.secrets["em"]['EMAIL_USERNAME']  # np. 'app.tferenc@gmail.com'
+password = st.secrets["em"]['EMAIL_PASSWORD']  # Gmail App Password (16 znaków, bez spacji)
+receiver = st.secrets["em"]['EMAIL_RECEIVER']  # np. 'ferenc.tomasz007@gmail.com'
 attachment_dir = 'data/'
 
 def send_email_with_attachment(body, attachment_path):
