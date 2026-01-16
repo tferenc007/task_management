@@ -3,7 +3,7 @@ name: Daily tasks email at 08:00 Europe/Warsaw
 
 on:
   schedule:
-    - cron: "0 * * * *"   # co godzinę o pełnej godzinie (UTC)
+    - cron: "0 7 * * *"   # co godzinę o pełnej godzinie (UTC)
   workflow_dispatch:       # możliwość ręcznego odpalenia
 
 jobs:
@@ -34,9 +34,4 @@ jobs:
         run: |
           echo "Local time: $(date '+%Y-%m-%d %H:%M:%S %Z')"
           HOUR=$(date +%H)
-          if [ "$HOUR" = "08" ]; then
-            echo "It's 08:00 in Europe/Warsaw. Running the script..."
-            python send_tasks_email.py
-          else
-            echo "Not 08:00 yet (it's $HOUR). Skipping."
-          fi
+          python send_tasks_email.py
