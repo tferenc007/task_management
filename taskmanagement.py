@@ -164,7 +164,6 @@ class TaskManagement:
             ac_score = selected_tasks['story_id'].apply(pd.to_numeric).count()
         return ac_score
     
-
     def duplicate_story(self, source_story_id, destination_sprint_id):
         # Find the story in the DataFrame
         for sp_id in destination_sprint_id:
@@ -312,20 +311,46 @@ class TaskManagement:
             i = i + story.task_count(is_completed)
         return i
 
+    def add_task_df (self, task_name, story_id, est_dat, task_desc='None'):
+        max_task_id = self.tasks_df['id'].apply(pd.to_numeric).max()
+        max_task_id = max_task_id + 1
+        new_task = {}
+        new_task['id'] = str(max_task_id)
+        new_task['story_id'] = story_id
+        new_task['name'] = task_name
+        if isinstance(est_dat, str):
+            if str(est_dat)=='None':
+                new_task['estimate_date'] = 'None'
+            else:
+                new_task['estimate_date'] ==  est_dat
+        new_task['estimate_date'] = 'None'
+        new_task['is_completed'] = 'false'
+        new_task['is_cancelled'] = 'false'
+        new_task['complitation_date'] = 'None'
+        new_task['description'] = task_desc
+        new_task_df = pd.DataFrame([new_task])[self.tasks_df.columns]
 
-    def add_task(self, task_name, story_id, est_dat, task_desc=None):
-        new_task = Task(df=self.df_tasks, est_date=est_dat)
-        new_task.name = task_name
-        new_task.story_id = story_id
-        new_task.description = task_desc
-        for epic in self.epics:
-            for story in epic.stories:
-                if story.id == story_id:
-                    story.tasks.append(new_task)
-                    self.save()
+        # # Append the new task to the DataFrame
+        # print(new_task)
+        self.tasks_df = pd.concat([self.tasks_df, new_task_df], ignore_index=True)
+        self.save_df(self.tasks_df, 'tasks')
 
-        # create a new taskś
         pass
+
+    # def add_task(self, task_name, story_id, est_dat, task_desc=None):
+    #     new_task = Task(df=self.df_tasks, est_date=est_dat)
+    #     new_task.name = task_name
+    #     new_task.story_id = story_id
+    #     new_task.description = task_desc
+
+    #     for epic in self.epics:
+    #         for story in epic.stories:
+    #             if story.id == story_id:
+    #                 story.tasks.append(new_task)
+    #                 self.save()
+
+    #     # create a new task
+    #     pass
 
     def add_story(self, story_name, story_description, sprint_id, epic_id, story_point, objective_id ='0'):
         new_story = Story(df=self.df_stories)
