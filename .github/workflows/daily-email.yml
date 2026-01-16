@@ -1,0 +1,42 @@
+
+name: Daily tasks email at 08:00 Europe/Warsaw
+
+on:
+  schedule:
+    - cron: "0 * * * *"   # co godzinę o pełnej godzinie (UTC)
+  workflow_dispatch:       # możliwość ręcznego odpalenia
+
+jobs:
+  send-email:
+    runs-on: ubuntu-latest
+    env:
+      TZ: Europe/Warsaw              # ustawia strefę dla poleceń date
+      EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
+      EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+      EMAIL_RECEIVER: ${{ secrets.EMAIL_RECEIVER }}
+      DB_PATH: data/database.db      # zmień jeśli masz inny path w repo
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      # Bramkujemy wykonanie tak, aby skrypt uruchomił się TYLKO o 08:00 lokalnie
+      - name: Run only at 08:00 Europe/Warsaw
+        run: |
+          echo "Local time: $(date '+%Y-%m-%d %H:%M:%S %Z')"
+          HOUR=$(date +%H)
+          if [ "$HOUR" = "08" ]; then
+            echo "It's 08:00 in Europe/Warsaw. Running the script..."
+            python send_tasks_email.py
+          else
+            echo "Not 08:00 yet (it's $HOUR). Skipping."
+          fi
