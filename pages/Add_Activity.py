@@ -218,8 +218,7 @@ class AddActivity():
                                 print(i)
                                 prefixed_task_name = f"{task_name} #{i}"
                                 self.tasktm.add_task_df(prefixed_task_name, story_frame.id, task_est)
-                            self.tasktm.save()
-                                
+                            self.tasktm.send_backup_if_prod()
                             st.session_state.button_clicked = ''
                             st.rerun()
                           
