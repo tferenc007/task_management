@@ -33,6 +33,8 @@ class View():
             current_sprint_start= datetime.datetime.strptime(current_sprint_start, "%Y-%m-%d")
             current_sprint_end = taskm.get_pi_end_date(sprint_id)
             current_sprint_end= datetime.datetime.strptime(current_sprint_end, "%Y-%m-%d")
+            
+            
 
         elif view_options == "Current":
             sprint_id_list = list(taskm.dic_sprint.keys())
@@ -42,6 +44,7 @@ class View():
             current_sprint_start= datetime.datetime.strptime(current_sprint_start, "%Y-%m-%d")
             current_sprint_end = taskm.dic_sprint[sprint_id]["sprint_end_date"]
             current_sprint_end= datetime.datetime.strptime(current_sprint_end, "%Y-%m-%d")
+
 
         start_date = current_sprint_start.date()
         if view_options == "Current":
@@ -80,7 +83,7 @@ class View():
                     col[1].markdown(f'{story_name.task_count(True)}/{story_name.task_count()}')
         elif view_options == "Objectives View":
             # Group by 'story_id' and count completed and all tasks
-
+            st.markdown(f'PI Dates: **:green[{current_sprint_start.date()} - {current_sprint_end.date()}]** ')
             task_summary = taskm.tasks_df.groupby('story_id').agg(
                 all_task=('story_id', 'count'),
                 completed_task=('is_completed', lambda x: (x == 'true').sum())
