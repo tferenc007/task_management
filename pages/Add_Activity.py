@@ -213,19 +213,13 @@ class AddActivity():
                         task_name = st.text_input("Task Name", key=f'task_name{story_frame.id}')
                         task_est = st.date_input("Estimate Date", key=f'task_estimate{story_frame.id}', value=None)
                         bulk_tasks = st.number_input("Number of taksks", step=1, min_value=1)
-                        if bulk_tasks == 1:
-                            if st.button("Add Task", key=f'add_task_button_to_story{story_frame.id}'):
-                                self.tasktm.add_task_df(task_name, story_frame.id, task_est)
-                                st.session_state.button_clicked = ''
-                                st.rerun()
-                        elif  bulk_tasks >1:
-                            if st.button("Add Task", key=f'add_task_button_to_story{story_frame.id}'):
-                                for i in range(1, bulk_tasks + 1):
-                                    print(i)
-                                    prefixed_task_name = f"{task_name} #{i}"
-                                    self.tasktm.add_task_df(prefixed_task_name, story_frame.id, task_est)
-                                st.session_state.button_clicked = ''
-                                st.rerun()
+                        if st.button("Add Task", key=f'add_task_button_to_story{story_frame.id}'):
+                            for i in range(1, bulk_tasks + 1):
+                                print(i)
+                                prefixed_task_name = f"{task_name} #{i}"
+                                self.tasktm.add_task_df(prefixed_task_name, story_frame.id, task_est)
+                            st.session_state.button_clicked = ''
+                            st.rerun()
                           
 
         # if not self.is_button_clicked:
