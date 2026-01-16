@@ -13,9 +13,9 @@ host = "smtp.gmail.com"
 port = 465
 
 context = ssl.create_default_context()
-username = 'app.tferenc@gmail.com'
-password = 'iyix czki wixf cafu'
-receiver = 'app.tferenc@gmail.com'
+username = os.environ.get('EMAIL_USERNAME')  # np. 'app.tferenc@gmail.com'
+password = os.environ.get('EMAIL_PASSWORD')  # Gmail App Password (16 znaków, bez spacji)
+receiver = os.environ.get('EMAIL_RECEIVER')  # np. 'ferenc.tomasz007@gmail.com'
 attachment_dir = 'data/'
 
 def send_email_with_attachment(body, attachment_path):

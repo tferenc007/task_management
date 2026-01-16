@@ -25,7 +25,7 @@ def send_email(task_list, receiver_email):
     message = MIMEMultipart()
     message['From'] = username
     message['To'] = receiver_email
-    message['Subject'] = "ebis_tm_backup"
+    message['Subject'] = "Lista zadan na dzisiaj"
 
     body = "Oto lista zadań przypadających na dzisiaj:<br><br>"
     body += "<table border='1'><tr><th>Name</th><th>Story ID</th><th>Estimate Date</th></tr>"
@@ -45,7 +45,15 @@ def get_tasks_from_db():
     conn = sq.connect(db_path)
 
     # Twoje kryteria
-    query = "SELECT * FROM tasks WHERE is_completed = 'false' and story_id = 176;"
+    query = """
+
+select t.* from tasks t
+left join  stories s on t.story_id = s.id
+where 1=1
+and s.est_start_date <= current_date
+and s.est_end_date >= current_date
+and t.is_completed='false';
+    """
     db_tasks = pd.read_sql_query(query, conn, dtype=str)
 
     tasks = [
