@@ -3,19 +3,21 @@ from datetime import datetime, date, timedelta
 import sqlite3 as sq
 import re
 import backup_email as be
+import utils.db as db
 import os
+
+
 
 class TaskManagement:
 
     def __init__(self):
-        conn = sq.connect('data/database.db')
-        self.epic_df = pd.read_sql_query("SELECT * FROM epics", conn, dtype=str)
-        self.stories_df = pd.read_sql_query("SELECT * FROM stories", conn, dtype=str)
-        self.tasks_df = pd.read_sql_query("SELECT * FROM tasks", conn, dtype=str)
-        self.objectives_df = pd.read_sql_query("SELECT * FROM objectives", conn, dtype=str)
+        conn = db.pg_conn()
+        schema = db.schema()
+        self.epic_df = pd.read_sql_query(f"SELECT * FROM {schema}.epics", conn, dtype=str)
+        self.stories_df = pd.read_sql_query(f"SELECT * FROM {schema}.stories", conn, dtype=str)
+        self.tasks_df = pd.read_sql_query(f"SELECT * FROM {schema}.tasks", conn, dtype=str)
+        self.objectives_df = pd.read_sql_query(f"SELECT * FROM {schema}.objectives", conn, dtype=str)
         self.sprint_dic = self.__create_sprint_dataframe(sprint_days=14, start_date='2024-11-18',sprint_number=100)
-        self._run_type = pd.read_sql_query("SELECT * FROM run_type", conn, dtype=str)
-        conn.close()
         
         epic_ids = self.epic_df["id"].tolist()
         self._epics = []
@@ -131,9 +133,9 @@ class TaskManagement:
                             }
             self.objectives_df = pd.concat([self.objectives_df, pd.DataFrame([new_objective])], ignore_index=True)
 
-        conn = sq.connect('data/database.db')
+        conn = db.pg_conn()
         self.objectives_df.to_sql('objectives', conn, if_exists='replace', index=False)
-        conn.close()
+        
         if edit==False:
             if selected_stories!=None and len(selected_stories)>0:
                 for st_id in selected_stories:
@@ -240,9 +242,9 @@ class TaskManagement:
             return True
         
     def save_df(self, df, table_name):
-        conn = sq.connect('data/database.db')
-        df.to_sql(table_name, conn, if_exists='replace', index=False)
-        conn.close()
+        conn = db.pg_conn()
+        df.to_sql(table_name, conn, if_exists='replace', index=False, schema=db.schema())
+        
 
     def get_story_id_by_name(self, story_name):
         #extract from story_name id for example story name =  'Take a Ride (123)'
@@ -515,37 +517,13 @@ class TaskManagement:
         e_df = pd.DataFrame(epic_dic)
         s_df = pd.DataFrame(story_dic)
         t_df = pd.DataFrame(task_dic)
-        run_type = pd.DataFrame([{'is_prod': 'true'}])
 
         # save object to database
-        conn = sq.connect('data/database.db')
-        e_df.to_sql('epics', conn, if_exists='replace', index=False)
-        s_df.to_sql('stories', conn, if_exists='replace', index=False)
-        t_df.to_sql('tasks', conn, if_exists='replace', index=False)
-        run_type.to_sql('run_type', conn, if_exists='replace', index=False)
-        conn.close()
-        self.send_backup_if_prod()
-
-    def send_backup_if_prod(self):
-        if os.path.isfile('local.txt'):
-            print("backap is not implemented")
-        else:
-            be.send_email_with_attachment(
-                body='Please find the attached file.',
-                attachment_path='data/database.db'
-                )
-    def make_db_dev(self):
-        run_type = pd.DataFrame([{'is_prod': 'false'}])
-        conn = sq.connect('data/database.db')
-        run_type.to_sql('run_type', conn, if_exists='replace', index=False)
-        conn.close()
-
-    def check_db(self):
-        if self._run_type.at[0,'is_prod']=='false':
-            return False
-        else:
-            return True
-
+        conn = db.pg_conn()
+        e_df.to_sql('epics',  conn, if_exists='replace', index=False, schema=db.schema())
+        s_df.to_sql('stories', conn, if_exists='replace', index=False, schema=db.schema())
+        t_df.to_sql('tasks', conn, if_exists='replace', index=False, schema=db.schema())
+        
     def get_pi_end_date(self, pi_id):
         max_date = None
         for sprint, values in self.dic_sprint.items():
@@ -931,7 +909,7 @@ class Task:
 
 if __name__ =='__main__':
     # !!!!! CREATE A INNITIAL DATABASE !!!!
-    # conn = sq.connect('data/database.db')
+    # conn = db.pg_conn()
     # epic_df.to_sql('epics', conn, if_exists='replace', index=False)
     # stories_df.to_sql('stories', conn, if_exists='replace', index=False)
     # tasks_df.to_sql('tasks', conn, if_exists='replace', index=False)
@@ -946,8 +924,7 @@ if __name__ =='__main__':
 
     # print(tasks_df)
     tasktm = TaskManagement()
-    
-    tasktm.make_db_dev()
+
     
     # be.send_email_with_attachment(
     #     body='Please find the attached file.',

@@ -6,6 +6,13 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import date
 import pandas as pd
+import utils.db as db 
+from utils.secrets import get_secret
+
+
+
+
+
 
 host = "smtp.gmail.com"
 port = 465
@@ -13,10 +20,9 @@ port = 465
 context = ssl.create_default_context()
 
 # --- POBIERANIE DANYCH Z ENV ---
-username = os.environ.get('EMAIL_USERNAME')  # np. 'app.tferenc@gmail.com'
-password = os.environ.get('EMAIL_PASSWORD')  # Gmail App Password (16 znaków, bez spacji)
-receiver = os.environ.get('EMAIL_RECEIVER')  # np. 'ferenc.tomasz007@gmail.com'
-db_path = os.environ.get('DB_PATH', 'data/database.db')  # domyślnie jak u Ciebie
+username = get_secret("EMAIL_USERNAME", section="em")
+password = get_secret("EMAIL_PASSWORD", section="em")
+receiver = get_secret("EMAIL_RECEIVER", section="em")
 
 if not username or not password or not receiver:
     raise ValueError("Brak wymaganych ENV: EMAIL_USERNAME, EMAIL_PASSWORD, EMAIL_RECEIVER")
@@ -42,18 +48,20 @@ def send_email(task_list, receiver_email):
 
 def get_tasks_from_db():
     # today = date.today().strftime("%Y-%m-%d")  # zostawiam na przyszłość, jakbyś chciał filtrować po dacie
-    conn = sq.connect(db_path)
+    conn = db.pg_conn()
 
     # Twoje kryteria
-    query = """
 
-select t.* from tasks t
-left join  stories s on t.story_id = s.id
-where 1=1
-and s.est_start_date <= current_date
-and s.est_end_date >= current_date
-and t.is_completed='false';
+    query = f"""
+        SELECT t.*
+        FROM {db.schema()}.tasks AS t
+        LEFT JOIN {db.schema()}.stories AS s ON t.story_id = s.id
+        WHERE 1=1
+          AND s.est_start_date >= CURRENT_DATE
+          AND s.est_end_date   >= CURRENT_DATE
+          AND t.is_completed = 'false'
     """
+
     db_tasks = pd.read_sql_query(query, conn, dtype=str)
 
     tasks = [
@@ -65,7 +73,6 @@ and t.is_completed='false';
         }
         for _, row in db_tasks.iterrows()
     ]
-    conn.close()
     return tasks
 
 def main():

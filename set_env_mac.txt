@@ -1,5 +1,0 @@
-
-export EMAIL_USERNAME="app.tferenc@gmail.com"
-export EMAIL_PASSWORD="iyixczkiwixfcafu"   # bez spacji!
-export EMAIL_RECEIVER="ferenc.tomasz007@gmail.com"
-export DB_PATH="data/database.db"

@@ -1,5 +1,0 @@
-
-$env:EMAIL_USERNAME = "app.tferenc@gmail.com"
-$env:EMAIL_PASSWORD = "iyixczkiwixfcafu"   # bez spacji!
-$env:EMAIL_RECEIVER = "ferenc.tomasz007@gmail.com"
-$env:DB_PATH = "data/database.db"

@@ -1,8 +1,0 @@
-epic_id,id,name,description,est_start_date,est_end_date,sprint_id
-1,1,Rouvy - Build your power by Giant 1/2,Finish 5 workouts,2024-11-18,2024-12-01,Sprint 1
-1,2,Weight workout,Attend to 3 sessions in home,2024-12-01,2024-12-01,Sprint 1
-2,3,Python app,Create MVP for task management application,2024-12-01,2024-12-01,Sprint 1
-3,4,Boardgames,Meet with friends 2 times,2024-11-18,2024-12-01,Sprint 1
-3,5,Meet friends,Meet with Korki,2024-11-18,2024-12-01,Sprint 1
-3,6,Meet with Sebastian,Go for a beer and for sth to eat,2024-11-18,2024-12-01,Sprint 1
-1,7,Rouvy - Build your power by Giant 2/2,Finish 4 workouts,2024-12-02,2024-12-15,Sprint 2

@@ -93,7 +93,6 @@ class Objectives():
                 delete_button = st.button(label='Delete Objective')
                 if delete_button:
                     tasktm.delete_objective(picked_objective_obj['objective_id'].tolist()[0])
-                    tasktm.send_backup_if_prod()
                     st.success("Objective deleted successfully!")
                     time.sleep(1)
                     st.rerun()
@@ -103,13 +102,11 @@ class Objectives():
                     tasktm.add_objective(objective_name=objective_name, objective_description=objective_description, objective_due_date=objective_due_date, 
                                          is_life_goal=is_life_goal, life_goal=life_goal, 
                                          selected_stories=selected_stories_id, ac_score=ac_score, ac_type=ac_type)
-                    tasktm.send_backup_if_prod()
                     st.session_state.ac_score = 0
                     st.success("Objective added successfully!")
                 else:
                     tasktm.edit_objective(picked_objective_obj['objective_id'].tolist()[0], objective_name, objective_description, objective_due_date, is_life_goal, 
                                           ac_score, ac_type, life_goal, selected_stories_id)
-                    tasktm.send_backup_if_prod()
                     st.success("Objective updated successfully")
                 st.session_state.ac_score = 0
                 st.rerun()

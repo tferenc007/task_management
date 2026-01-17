@@ -16,15 +16,9 @@ class View():
             st.session_state.sidebar_visible = False
 
             st.set_page_config(page_title="View")
-            if os.path.isfile('local.txt')==False:
-                if taskm.check_db()==False:
-                    be.find_latest_email_and_save_attachment()
-                    st.rerun()
 
         st.markdown("<h1 style='text-align: center;'>View</h1>", unsafe_allow_html=True)
         view_options = st.selectbox("Select View",["Current", "Objectives View"])
-        with st.sidebar:
-            self.export_db()
         if view_options == "Objectives View":
             sorted_unique_pi_ids = taskm.sorted_unique_pi_ids()
             current_pi_index = sorted_unique_pi_ids.index(taskm.get_current_sprint_pi_id(sprint_pi='pi'))
@@ -193,13 +187,7 @@ class View():
             # Display the chart
             st.altair_chart(final_chart, use_container_width=True)
 
-        
-    def export_db(self):
-        if st.button("Synch database"):
-            be.find_latest_email_and_save_attachment()
-            if os.path.isfile('local.txt'):
-                taskm.make_db_dev()
- 
+         
     
 taskm = tm.TaskManagement()
 page_veiw = View()
