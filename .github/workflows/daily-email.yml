@@ -14,6 +14,12 @@ jobs:
       EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
       EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
       EMAIL_RECEIVER: ${{ secrets.EMAIL_RECEIVER }}
+      PG_HOST: ${{ secrets.PG_HOST }}
+      PG_USER: ${{ secrets.PG_USER }}
+      PG_PASSWORD: ${{ secrets.PG_PASSWORD }}
+      PG_PORT: ${{ secrets.PG_PORT }}
+      PG_DB: ${{ secrets.PG_DB }}
+      PG_SCHEMA: ${{ secrets.PG_SCHEMA }}
       DB_PATH: data/database.db      # zmień jeśli masz inny path w repo
     steps:
       - name: Checkout
