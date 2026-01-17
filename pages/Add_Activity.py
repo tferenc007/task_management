@@ -4,7 +4,8 @@ import taskmanagement as tm
 from datetime import datetime
 import time
 
-tasktm = tm.TaskManagement()
+if 'tasktm' not in st.session_state:
+         st.session_state.tasktm =  tm.TaskManagement()
 
 
 class AddActivity():
@@ -274,4 +275,4 @@ class AddActivity():
                     
 
 
-page_view = AddActivity(tasktm)
+page_view = AddActivity(st.session_state.tasktm)

@@ -9,7 +9,7 @@ import altair as alt
 
 
 class View():
-    def __init__(self):
+    def __init__(self,taskm):
         if 'sidebar_visible' not in st.session_state:
             st.session_state.sidebar_visible = True
 
@@ -188,6 +188,6 @@ class View():
             st.altair_chart(final_chart, use_container_width=True)
 
          
-    
-taskm = tm.TaskManagement()
-page_veiw = View()
+if 'tasktm' not in st.session_state:
+         st.session_state.tasktm =  tm.TaskManagement()
+page_veiw = View(st.session_state.tasktm)

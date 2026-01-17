@@ -4,7 +4,8 @@ import taskmanagement as tm
 from datetime import datetime
 import time
 
-tasktm = tm.TaskManagement()
+if 'tasktm' not in st.session_state:
+         st.session_state.tasktm =  tm.TaskManagement()
 
 class Edit():
     def __init__(self, tasktm):
@@ -42,19 +43,19 @@ class Edit():
 
 
     def add_new_story(self):
-        epic_list_origin = tasktm.epics_to_list('name')
+        epic_list_origin = self.tasktm.epics_to_list('name')
         epic_list = epic_list_origin.copy()
         epic_list.insert(0,'All Epics')
         ep_id = None
         selected_epic = st.selectbox("Select Epic",epic_list, key='edit_story')
         if selected_epic!='All Epics':
 
-            ep = tasktm.epic_by_name(selected_epic)
+            ep = self.tasktm.epic_by_name(selected_epic)
             ep_id = ep.id
-            story_list = tasktm.stories_to_list('both',ep_id)
+            story_list = self.tasktm.stories_to_list('both',ep_id)
     
         else:
-            story_list = tasktm.stories_to_list('both')       
+            story_list = self.tasktm.stories_to_list('both')       
         story_list.insert(0,'Add new story')
         picked_story = st.selectbox("Pick the story",story_list) 
 
@@ -63,38 +64,38 @@ class Edit():
             epic_name = st.selectbox("Epic Name",epic_list_origin, key='edit_story_epic_name')
             story_name = st.text_input("Name")
             story_description = st.text_input("Description")
-            sprint_id = st.selectbox("Sprint", tasktm.dic_sprint.keys() )
-            sprint_start_date = datetime.strptime(tasktm.dic_sprint[sprint_id]['sprint_start_date'], "%Y-%m-%d")
+            sprint_id = st.selectbox("Sprint", self.tasktm.dic_sprint.keys() )
+            sprint_start_date = datetime.strptime(self.tasktm.dic_sprint[sprint_id]['sprint_start_date'], "%Y-%m-%d")
             story_points = st.selectbox("Story Points",["1",'3','5','8','13','21'])
-            sprint_end_date = datetime.strptime(tasktm.dic_sprint[sprint_id]['sprint_end_date'], "%Y-%m-%d")
+            sprint_end_date = datetime.strptime(self.tasktm.dic_sprint[sprint_id]['sprint_end_date'], "%Y-%m-%d")
             story_est_start_date = st.date_input("Est Start Date",value=sprint_start_date, disabled=True)
             story_est_end_date = st.date_input("Est End Date", value=sprint_end_date, disabled=True)
-            objective_list = tasktm.objectives_to_list('objective_name', filter_by='is_life_goal=="no"')
+            objective_list = self.tasktm.objectives_to_list('objective_name', filter_by='is_life_goal=="no"')
             objective_list.insert(0, 'No objective')
             objective_id = st.selectbox("Objective", objective_list)
         else:
-            picked_story_id =tasktm.get_story_id_by_name(picked_story)
-            picked_story_obj =  [story for story in tasktm.stories_squeeze() if story.id == picked_story_id][0]
+            picked_story_id =self.tasktm.get_story_id_by_name(picked_story)
+            picked_story_obj =  [story for story in self.tasktm.stories_squeeze() if story.id == picked_story_id][0]
             ep_id = picked_story_obj.epic_id
-            epic = tasktm.epic_by_id(ep_id)
+            epic = self.tasktm.epic_by_id(ep_id)
             st_id = picked_story_obj.id
 
             epic_name = st.selectbox("Epic Name",epic_list_origin, key='edit_story_epic_name', index=epic.epic_index)
             story_name = st.text_input("Name",value=picked_story_obj.name)
             story_description = st.text_input("Description",value=picked_story_obj.description)
-            sprint_id = st.selectbox("Sprint", tasktm.dic_sprint.keys(), index=list(tasktm.dic_sprint.keys()).index(picked_story_obj.sprint_id))
+            sprint_id = st.selectbox("Sprint", self.tasktm.dic_sprint.keys(), index=list(self.tasktm.dic_sprint.keys()).index(picked_story_obj.sprint_id))
 
    
 
-            sprint_start_date = datetime.strptime(tasktm.dic_sprint[sprint_id]['sprint_start_date'], "%Y-%m-%d")
-            sprint_end_date = datetime.strptime(tasktm.dic_sprint[sprint_id]['sprint_end_date'], "%Y-%m-%d")
+            sprint_start_date = datetime.strptime(self.tasktm.dic_sprint[sprint_id]['sprint_start_date'], "%Y-%m-%d")
+            sprint_end_date = datetime.strptime(self.tasktm.dic_sprint[sprint_id]['sprint_end_date'], "%Y-%m-%d")
             story_points = st.selectbox("Story Points", ["1",'3','5','8','13','21'], index=picked_story_obj.story_point_index)
             story_est_start_date = st.date_input("Est Start Date",value=sprint_start_date, disabled=True)
             story_est_end_date = st.date_input("Est End Date", value=sprint_end_date, disabled=True)
-            objective_list = tasktm.objectives_to_list('objective_name', filter_by='is_life_goal=="no"')
+            objective_list = self.tasktm.objectives_to_list('objective_name', filter_by='is_life_goal=="no"')
             objective_list.insert(0, 'No objective')
 
-            obj_name = tasktm.df_objectives.query(f'objective_id=="{picked_story_obj.objective_id}"')[['objective_name']]
+            obj_name = self.tasktm.df_objectives.query(f'objective_id=="{picked_story_obj.objective_id}"')[['objective_name']]
             if obj_name.empty:
                 obj_name = 'No objective'
             else:
@@ -105,11 +106,11 @@ class Edit():
             if objective_id=='No objective':
                 objective_id = '0'
             else:
-                 objective_id = tasktm.objective_id_by_name(objective_id)
+                 objective_id = self.tasktm.objective_id_by_name(objective_id)
             if st.button('Delete Story'):
-                for ep in tasktm.epics:
+                for ep in self.tasktm.epics:
                     ep.stories[:] = [sto for sto in ep.stories if sto.id != st_id]
-                tasktm.save()
+                self.tasktm.save()
                 st.success("Story was deleted")
                 time.sleep(1)
                 st.rerun()
@@ -119,11 +120,11 @@ class Edit():
 
             if validation_text=='Success':
                 if picked_story=='Add new story':
-                    tasktm.add_story(story_name, story_description, str(sprint_id), tasktm.epic_by_name(epic_name).id,
+                    self.tasktm.add_story(story_name, story_description, str(sprint_id), self.tasktm.epic_by_name(epic_name).id,
                                       str(story_points), objective_id =objective_id)
                 else:
-                    tasktm.edit_story(story_id=st_id, story_name=story_name, story_description=story_description,
-                                       sprint_id=str(sprint_id), epic_id=tasktm.epic_by_name(epic_name).id, story_point=str(story_points),
+                    self.tasktm.edit_story(story_id=st_id, story_name=story_name, story_description=story_description,
+                                       sprint_id=str(sprint_id), epic_id=self.tasktm.epic_by_name(epic_name).id, story_point=str(story_points),
                                          objective_id = objective_id)
                 
                 st.success("Story was added")
@@ -138,36 +139,36 @@ class Edit():
 
     def add_edit_task(self): 
 
-        epic_list = tasktm.epics_to_list('name')
+        epic_list = self.tasktm.epics_to_list('name')
         epic_list.insert(0,'All Epics')
         selected_epic = st.selectbox("Select Epic",epic_list, key='edit_taskss')
 
         if selected_epic!='All Epics':
 
-            ep = tasktm.epic_by_name(selected_epic)
+            ep = self.tasktm.epic_by_name(selected_epic)
             ep_id = ep.id
-            story_list = tasktm.stories_to_list('both',ep_id)
+            story_list = self.tasktm.stories_to_list('both',ep_id)
     
         else:
-            story_list = tasktm.stories_to_list('both')       
+            story_list = self.tasktm.stories_to_list('both')       
         story_list.insert(0,'All Stories')
 
         if len(story_list)>0:
             selected_story = st.selectbox("Pick the story", story_list, key='costum_key')
             if selected_epic=='All Epics':
                 if selected_story=='All Stories':
-                    st_ = tasktm.tasks_squeeze()
+                    st_ = self.tasktm.tasks_squeeze()
                     tasks = st_
                     task_list = [task.name for task in st_]
                 else:
                     st_ = []
-                    st_id = tasktm.get_story_id_by_name(selected_story)
-                    st_.append(tasktm.story_by_id(st_id))
+                    st_id = self.tasktm.get_story_id_by_name(selected_story)
+                    st_.append(self.tasktm.story_by_id(st_id))
                     tasks = st_[0].tasks
                     task_list = [f'{task.name} ({task.id})' for task in tasks]
             else:
                 if selected_story=='All Stories':
-                    st_ = tasktm.stories_squeeze()
+                    st_ = self.tasktm.stories_squeeze()
 
                     story_filterd = [story for story in st_ if story.epic_id==ep_id]
                     tasks = []
@@ -178,8 +179,8 @@ class Edit():
                     task_list = [f'{task.name} ({task.id})' for task in tasks]
                 else:
                     st_ = []
-                    st_id = tasktm.get_story_id_by_name(selected_story)
-                    st_.append(tasktm.story_by_id(st_id))
+                    st_id = self.tasktm.get_story_id_by_name(selected_story)
+                    st_.append(self.tasktm.story_by_id(st_id))
                     tasks = st_[0].tasks
                     task_list = [f'{task.name} ({task.id})' for task in tasks]
 
@@ -198,7 +199,7 @@ class Edit():
                 task_is_cancelled= st.checkbox("Is cancelled", value=False)
 
             else:
-                picked_task_id = tasktm.extract_task_id_by_name(picked_task)
+                picked_task_id = self.tasktm.extract_task_id_by_name(picked_task)
                 picked_task_obj = [task for task in tasks if task.id == picked_task_id][0]
                 st_id = picked_task_obj.story_id
                 task_name = st.text_input("Task Name", value=picked_task_obj.name)
@@ -220,11 +221,11 @@ class Edit():
                     task_is_cancelled= st.checkbox("Is cancelled", value=False)
 
             if st.button('Delete Task'):
-                for ep in tasktm.epics:
+                for ep in self.tasktm.epics:
                     for sto in ep.stories:
                         sto.tasks[:] = [task for task in sto.tasks if task.id != picked_task_obj.id]
 
-                tasktm.save()
+                self.tasktm.save()
                 st.success("Task was deleted")
                 time.sleep(1)
                 st.rerun()
@@ -232,11 +233,11 @@ class Edit():
             if st.button("Save / Add"):
                 if task_validation=='Success':
                     if picked_task=='Add new task':
-                        for ep in tasktm.epics:
+                        for ep in self.tasktm.epics:
                             for sto in ep.stories:
                                 if sto.id==st_id:
 
-                                    new_task = tm.Task(df=tasktm.df_tasks)
+                                    new_task = tm.Task(df=self.tasktm.df_tasks)
 
                                     new_task.name = task_name
                                     new_task.story_id = str(st_id)
@@ -252,11 +253,11 @@ class Edit():
                                     else:
                                         new_task.is_cancelled = 'false'
                                     sto.tasks.append(new_task)
-                                    tasktm.save()
+                                    self.tasktm.save()
                                     break
 
                     else:
-                        for ep in tasktm.epics:
+                        for ep in self.tasktm.epics:
                             for sto in ep.stories:
                                 if sto.id==st_id:
                                     for tas in sto.tasks:
@@ -274,7 +275,7 @@ class Edit():
                                                 tas.is_cancelled = 'true'
                                             else:
                                                 tas.is_cancelled = 'false'
-                                            tasktm.save()
+                                            self.tasktm.save()
                                             break
 
                     st.success("Story was added")
@@ -286,4 +287,4 @@ class Edit():
 
     def task_validation(self):
         return 'Success'
-start = Edit(tasktm)
+start = Edit( st.session_state.tasktm )

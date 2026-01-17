@@ -4,11 +4,13 @@ import taskmanagement as tm
 from datetime import datetime
 import time
 
-tasktm = tm.TaskManagement()
+
+if 'tasktm' not in st.session_state:
+         st.session_state.tasktm =  tm.TaskManagement()
 
 
 class Objectives():
-    def __init__(self):
+    def __init__(self, tasktm):
 
         st.title("Add New Objective")
         if 'ac_score' not in st.session_state:
@@ -113,5 +115,5 @@ class Objectives():
 
 
 
-page_view = Objectives()
+page_view = Objectives(st.session_state.tasktm)
 
