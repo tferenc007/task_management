@@ -32,7 +32,7 @@ def get_secret(
         pass
 
     # 2) ENV (próba z prefiksem section_key, potem bez)
-    env_key = f"{section}_{key}".upper() if section else key.upper()
+    env_key = key.upper()
     value = os.getenv(env_key)
     if value is None and not section:
         # opcjonalny fallback na oryginalną nazwę, gdyby była w innej konwencji
