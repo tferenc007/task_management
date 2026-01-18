@@ -196,6 +196,7 @@ class AddActivity():
                             sprint_selected = st.selectbox(change_sprint_label, sprint_lists, key="change_sprint_key", index=sprint_index)
                         
                         if sprint_selected != story_frame.sprint_id and duplicate_sprint==False:
+                            st.session_state.pop("tasktm", None)
                             self.tasktm.edit_story(story_id=story_frame.id, sprint_id=sprint_selected)
                                 
                             st.session_state.button_clicked = ''
