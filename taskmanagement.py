@@ -234,7 +234,9 @@ class TaskManagement:
 
     def __safe_df_core__(self, df, table_name):
         conn = db.pg_conn()
-        df.to_sql(table_name, conn, if_exists='replace', index=False, schema=db.schema())
+
+        conn.execute(f'TRUNCATE TABLE {db.schema()}.{table_name}')
+        df.to_sql(table_name, conn, if_exists='append', index=False, schema=db.schema())
         print("data has been saved")
         
     def save_df(self, df, table_name):
