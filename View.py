@@ -1,8 +1,6 @@
 import streamlit as st # type: ignore
 import datetime
 import taskmanagement as tm
-import os
-import backup_email as be
 import pandas as pd
 import altair as alt
 
