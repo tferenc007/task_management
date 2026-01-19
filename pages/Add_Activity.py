@@ -249,21 +249,21 @@ class AddActivity():
 
     def add_to_db(self, story_frame):
         if 'task' in st.session_state:
-            task = st.session_state.task
+            my_task = st.session_state.task
             with st.container(border=True):
                 today = datetime.today().date()
-                est_date =str(task.estimate_date)
+                est_date =str(my_task.estimate_date)
                 st.text(f"Estimate Date: {est_date}")
-                task_complete_date = st.date_input("Date", key=f'task_date{task.id}', max_value=today)
-                if st.button("Complete Task", key=f'task_complete_button{task.id}') and task_complete_date <= today:
-                    self.tasktm.complete_task(task.id, task_complete_date)
+                task_complete_date = st.date_input("Date", key=f'task_date{my_task.id}', max_value=today)
+                if st.button("Complete Task", key=f'task_complete_button{my_task.id}') and task_complete_date <= today:
+                    self.tasktm.complete_task(my_task.id, task_complete_date)
                     st.session_state.header_success = True
                     st.session_state.button_clicked=''
                     del st.session_state.task
                     # del st.session_state['story_frame_status']
                     st.rerun()      
-                if st.button("Cancel Task", key=f'task_cancel_button{task.id}') and task_complete_date <= today:
-                    self.tasktm.cancel_task(task.id)
+                if st.button("Cancel Task", key=f'task_cancel_button{my_task.id}') and task_complete_date <= today:
+                    self.tasktm.cancel_task(my_task.id)
                     st.session_state.header_success = True
                     st.session_state.button_clicked=''
                     del st.session_state.task
