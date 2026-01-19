@@ -223,9 +223,6 @@ class AddActivity():
                             st.rerun()
                           
 
-        # if not self.is_button_clicked:
-        #     print(" clicked")
-        #     #self.add_to_db()
     def __story_frame_to_false__(self):
         st.session_state.story_frame_status = {}
         for story in st.session_state.stories:
@@ -255,22 +252,22 @@ class AddActivity():
             task = st.session_state.task
             with st.container(border=True):
                 today = datetime.today().date()
-                # print(task.estimate_date)
                 est_date =str(task.estimate_date)
                 st.text(f"Estimate Date: {est_date}")
                 task_complete_date = st.date_input("Date", key=f'task_date{task.id}', max_value=today)
-                # print(f'task_date{task.id}')
                 if st.button("Complete Task", key=f'task_complete_button{task.id}') and task_complete_date <= today:
-                    self.tasktm.complete_task(task, task_complete_date)
+                    self.tasktm.complete_task(task.id, task_complete_date)
                     st.session_state.header_success = True
                     st.session_state.button_clicked=''
                     del st.session_state.task
+                    # del st.session_state['story_frame_status']
                     st.rerun()      
                 if st.button("Cancel Task", key=f'task_cancel_button{task.id}') and task_complete_date <= today:
-                    self.tasktm.cancel_task(task)
+                    self.tasktm.cancel_task(task.id)
                     st.session_state.header_success = True
                     st.session_state.button_clicked=''
                     del st.session_state.task
+                    # del st.session_state['story_frame_status']l;.
                     st.rerun()      
                     
 
