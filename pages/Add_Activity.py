@@ -81,7 +81,6 @@ class AddActivity():
                 st.session_state.button_clicked = ''
                 self.__reasign_story__(st.session_state.current_sprint_selected)
                 self.__story_frame_to_false__()
-
                 st.rerun()
 
   

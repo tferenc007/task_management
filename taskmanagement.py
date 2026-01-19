@@ -240,6 +240,8 @@ class TaskManagement:
             return False
         else:
             return True
+        
+
     def __safe_df_core__(self, df, table_name):
         conn = db.pg_conn()
         df.to_sql(table_name, conn, if_exists='replace', index=False, schema=db.schema())
@@ -347,23 +349,6 @@ class TaskManagement:
         self.tasks_df = pd.concat([self.tasks_df, new_task_df], ignore_index=True)
         self.save_df(self.tasks_df, 'tasks')
 
-        pass
-
-    # def add_task(self, task_name, story_id, est_dat, task_desc=None):
-    #     new_task = Task(df=self.df_tasks, est_date=est_dat)
-    #     new_task.name = task_name
-    #     new_task.story_id = story_id
-    #     new_task.description = task_desc
-
-    #     for epic in self.epics:
-    #         for story in epic.stories:
-    #             if story.id == story_id:
-    #                 story.tasks.append(new_task)
-    #                 self.save()
-
-    #     # create a new task
-    #     pass
-
     def add_story(self, story_name, story_description, sprint_id, epic_id, story_point, objective_id ='0'):
         new_story = Story(df=self.df_stories)
        
@@ -374,13 +359,30 @@ class TaskManagement:
         new_story.story_point = story_point
         new_story.objective_id = objective_id
 
-        for epic in self.epics:
-            if epic.id == epic_id:
-                epic.stories.append(new_story)
-                # print("story added")
-                self.save()
-        # create a new story
-        pass
+        max_id = self.stories_df['id'].max()+1
+        
+        parsed_date = datetime.strptime(self.dic_sprint[sprint_id]["sprint_end_date"], '%Y-%m-%d')
+        est_end_date = parsed_date.strftime('%Y-%m-%d')
+
+        parsed_date = datetime.strptime(self.dic_sprint[sprint_id]["sprint_start_date"], '%Y-%m-%d')
+        est_start_date = parsed_date.strftime('%Y-%m-%d')
+
+
+        new_story = {
+            "id": max_id,
+            "name": story_name,
+            "description": story_description,
+            "est_start_date": est_start_date,
+            "est_end_date": est_end_date,
+            "sprint_id": sprint_id,
+            "epic_id": epic_id,
+            "story_point": story_point,
+            "objective_id": objective_id
+}
+
+        self.stories_df.loc[len(self.stories_df)] = new_story
+        
+        self.save_df(self.stories_df, 'stories')
     def edit_story(self, story_id, story_name=None, story_description=None, sprint_id=None, epic_id=None, story_point=None, objective_id =None):
         
         current_story = self.stories_df[self.stories_df['id']==story_id]
