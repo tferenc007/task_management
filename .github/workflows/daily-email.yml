@@ -3,7 +3,7 @@ name: Daily tasks email at 08:00 Europe/Warsaw
 
 on:
   schedule:
-    - cron: "0 7 * * *"   # co godzinę o pełnej godzinie (UTC)
+    - cron: "0 6 * * *"   # co godzinę o pełnej godzinie (UTC)
   workflow_dispatch:       # możliwość ręcznego odpalenia
 
 jobs:
