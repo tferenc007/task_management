@@ -4,7 +4,7 @@ import sqlite3 as sq
 import re
 import backup_email as be
 import utils.db as db
-import os
+import threading
 
 
 
@@ -19,14 +19,7 @@ class TaskManagement:
         self.objectives_df = pd.read_sql_query(f"SELECT * FROM {schema}.objectives", conn, dtype=str)
         self.sprint_dic = self.__create_sprint_dataframe(sprint_days=14, start_date='2024-11-18',sprint_number=100)
         
-        epic_ids = self.epic_df["id"].tolist()
-        self._epics = []
-
-        for ei in epic_ids:
-            epic = Epic(epic_id=ei)
-            epic.get_attr(self.epic_df)
-            epic.get_all_stories(story_df=self.stories_df, task_df=self.tasks_df)
-            self._epics.append(epic)
+        self.fulfill_classes()
 
     @property
     def df_epic(self):
@@ -46,13 +39,22 @@ class TaskManagement:
     @property
     def epics(self):
         return self._epics
+    def fulfill_classes(self):
+        epic_ids = self.epic_df["id"].tolist()
+        self._epics = []
+
+        for ei in epic_ids:
+            epic = Epic(epic_id=ei)
+            epic.get_attr(self.epic_df)
+            epic.get_all_stories(story_df=self.stories_df, task_df=self.tasks_df)
+            self._epics.append(epic)
     def complete_task(self, task_completed, date):
         for epic in self.epics:
             for story in epic.stories:
                 for task in story.tasks:
                     if task.id == task_completed.id:
                         task.complitation_date = date
-                        self.save()
+                        self.save(type='tasks')
 
 
     def cancel_task(self, task_cancelled):
@@ -61,7 +63,7 @@ class TaskManagement:
                 for task in story.tasks:
                     if task.id == task_cancelled.id:
                         task.is_cancelled = 'true'
-                        self.save()
+                        self.save(type='tasks')
                         
     def objective_id_by_name(self, objective_name):
         if objective_name == 'No objective':
@@ -132,9 +134,7 @@ class TaskManagement:
                             'acceptance_criteria_type': str(ac_type)
                             }
             self.objectives_df = pd.concat([self.objectives_df, pd.DataFrame([new_objective])], ignore_index=True)
-
-        conn = db.pg_conn()
-        self.objectives_df.to_sql('objectives', conn, if_exists='replace', index=False)
+        self.save_df( self.objectives_df, 'objectives')
         
         if edit==False:
             if selected_stories!=None and len(selected_stories)>0:
@@ -240,10 +240,20 @@ class TaskManagement:
             return False
         else:
             return True
-        
-    def save_df(self, df, table_name):
+    def __safe_df_core__(self, df, table_name):
         conn = db.pg_conn()
         df.to_sql(table_name, conn, if_exists='replace', index=False, schema=db.schema())
+        print("data has been saved")
+        
+    def save_df(self, df, table_name):
+        self.fulfill_classes()
+        thread = threading.Thread(
+        target=self.__safe_df_core__,
+        args=(df, table_name),
+        daemon=True
+        )
+        thread.start()
+
         
 
     def get_story_id_by_name(self, story_name):
@@ -491,7 +501,7 @@ class TaskManagement:
         stories = self.stories_squeeze()
         return [story for story in stories if story.id == story_id][0]
         
-    def save(self):
+    def save(self, type='All'):
 
         epic_dic = []
         story_dic = []
@@ -514,16 +524,26 @@ class TaskManagement:
                     # if task.name=='Take a Ride 2':
                     #     print(str(task.estimate_date))
                     task_dic.append(t_dic)
-        e_df = pd.DataFrame(epic_dic)
-        s_df = pd.DataFrame(story_dic)
-        t_df = pd.DataFrame(task_dic)
-
+        if type=='All':
+            e_df = pd.DataFrame(epic_dic)
+            s_df = pd.DataFrame(story_dic)
+            t_df = pd.DataFrame(task_dic)
+            self.save_df(e_df, 'epics')
+            self.save_df(s_df, 'stories')
+            self.save_df(t_df, 'tasks')
+        elif type=='tasks':
+            t_df = pd.DataFrame(task_dic)
+            self.save_df(t_df, 'tasks')
+        elif type=='stories':
+            s_df = pd.DataFrame(story_dic)
+            self.save_df(s_df, 'stories')
+        elif type=='epics':
+            e_df = pd.DataFrame(epic_dic)
+            self.save_df(t_df, 'tasks')
+        self.fulfill_classes()
         # save object to database
-        conn = db.pg_conn()
-        e_df.to_sql('epics',  conn, if_exists='replace', index=False, schema=db.schema())
-        s_df.to_sql('stories', conn, if_exists='replace', index=False, schema=db.schema())
-        t_df.to_sql('tasks', conn, if_exists='replace', index=False, schema=db.schema())
-        
+
+
     def get_pi_end_date(self, pi_id):
         max_date = None
         for sprint, values in self.dic_sprint.items():
