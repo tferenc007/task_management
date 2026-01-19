@@ -258,7 +258,7 @@ class AddActivity():
                 if st.button("Complete Task", key=f'task_complete_button{my_task.id}') and task_complete_date <= today:
                     print(type(my_task))
                     print(my_task.id)
-                    self.tasktm.complete_task(my_task.id, task_complete_date)
+                    # self.tasktm.complete_task(my_task.id, task_complete_date)
                     st.session_state.header_success = True
                     st.session_state.button_clicked=''
                     del st.session_state.task
@@ -267,7 +267,7 @@ class AddActivity():
                 if st.button("Cancel Task", key=f'task_cancel_button{my_task.id}') and task_complete_date <= today:
                     print(type(my_task))
                     print(my_task.id)
-                    self.tasktm.cancel_task(my_task.id)
+                    # self.tasktm.cancel_task(my_task.id)
                     st.session_state.header_success = True
                     st.session_state.button_clicked=''
                     del st.session_state.task
