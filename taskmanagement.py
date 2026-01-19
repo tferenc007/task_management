@@ -1,8 +1,6 @@
 import pandas as pd
 from datetime import datetime, date, timedelta
-import sqlite3 as sq
 import re
-import backup_email as be
 import utils.db as db
 import threading
 

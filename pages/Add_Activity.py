@@ -256,17 +256,15 @@ class AddActivity():
                 st.text(f"Estimate Date: {est_date}")
                 task_complete_date = st.date_input("Date", key=f'task_date{my_task.id}', max_value=today)
                 if st.button("Complete Task", key=f'task_complete_button{my_task.id}') and task_complete_date <= today:
-                    print(type(my_task))
-                    print(my_task.id)
                     # self.tasktm.complete_task(my_task.id, task_complete_date)
+                    st.write(type(my_task))
+                    st.write(my_task.id)
                     st.session_state.header_success = True
                     st.session_state.button_clicked=''
                     del st.session_state.task
                     # del st.session_state['story_frame_status']
                     st.rerun()      
                 if st.button("Cancel Task", key=f'task_cancel_button{my_task.id}') and task_complete_date <= today:
-                    print(type(my_task))
-                    print(my_task.id)
                     # self.tasktm.cancel_task(my_task.id)
                     st.session_state.header_success = True
                     st.session_state.button_clicked=''
