@@ -2,7 +2,7 @@
 import streamlit as st
 import taskmanagement as tm
 from datetime import datetime
-import time
+
 
 if 'tasktm' not in st.session_state:
          st.session_state.tasktm =  tm.TaskManagement()
@@ -133,8 +133,8 @@ class AddActivity():
                                             self.story_frame_status(st.session_state.stories, story_frame.id)
                                         st.rerun()
                                 if  st.session_state.button_clicked==f'task_button{task.id}':
-                                    st.session_state.task = task
-                                    self.add_to_db(story_frame)
+                                    st.session_state.task_comp = task
+                                    self.add_to_db(task.id)
                                     # self.is_button_clicked = True
                                 with c2:
                                     if tick_mark=='done':
@@ -156,8 +156,8 @@ class AddActivity():
                                             self.story_frame_status(st.session_state.stories, story_frame.id)
                                         st.rerun()
                                 if st.session_state.button_clicked==f'task_button{task.id}':
-                                    st.session_state.task = task
-                                    self.add_to_db(story_frame)
+                                    st.session_state.task_comp = task
+                                    self.add_to_db(task.id)
                                     # self.is_button_clicked = True
                                 with c4:
                                     if tick_mark=='done':
@@ -247,9 +247,9 @@ class AddActivity():
 
 
 
-    def add_to_db(self, story_frame):
-        if 'task' in st.session_state:
-            my_task = st.session_state.task
+    def add_to_db(self, task_id):
+        if 'task_comp' in st.session_state:
+            my_task = st.session_state.task_comp
             with st.container(border=True):
                 today = datetime.today().date()
                 est_date =str(my_task.estimate_date)
@@ -261,15 +261,15 @@ class AddActivity():
                     st.write(my_task.id)
                     st.session_state.header_success = True
                     st.session_state.button_clicked=''
-                    del st.session_state.task
+                    del st.session_state['task_comp']
+                    
                     # del st.session_state['story_frame_status']
                     st.rerun()      
                 if st.button("Cancel Task", key=f'task_cancel_button{my_task.id}') and task_complete_date <= today:
                     # self.tasktm.cancel_task(my_task.id)
                     st.session_state.header_success = True
                     st.session_state.button_clicked=''
-                    del st.session_state.task
-                    # del st.session_state['story_frame_status']l;.
+                    del st.session_state['task_comp']
                     st.rerun()      
                     
 
