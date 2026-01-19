@@ -49,12 +49,12 @@ class TaskManagement:
             epic.get_all_stories(story_df=self.stories_df, task_df=self.tasks_df)
             self._epics.append(epic)
 
-    def complete_task(self, task_id, date):
-        self.tasks_df.loc[self.tasks_df['id'] == task_id, ['complitation_date', 'is_completed']] = [date,'true']
+    def complete_task(self, complete_task_id, date):
+        self.tasks_df.loc[self.tasks_df['id'] == complete_task_id, ['complitation_date', 'is_completed']] = [date,'true']
         self.save_df( self.tasks_df, 'tasks')
  
-    def cancel_task(self, task_id):
-        self.tasks_df.loc[self.tasks_df['id'] == task_id, ['is_cancelled']] = ['true']
+    def cancel_task(self, cancel_task_id):
+        self.tasks_df.loc[self.tasks_df['id'] == cancel_task_id, ['is_cancelled']] = ['true']
         self.save_df( self.tasks_df, 'tasks')
                         
     def objective_id_by_name(self, objective_name):
