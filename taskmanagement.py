@@ -3,6 +3,7 @@ from datetime import datetime, date, timedelta
 import re
 import utils.db as db
 import threading
+from sqlalchemy import text
 
 
 
