@@ -3,7 +3,7 @@ name: Keep Streamlit Alive
 
 on:
   schedule:
-    - cron: "0 */2 * * *"   # co 15 minut
+    - cron: "*/45 * * * *"   # co 15 minut 
   workflow_dispatch:         # pozwala uruchomić ręcznie
 
 jobs:
